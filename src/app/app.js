@@ -11,3 +11,7 @@ dbConfig.dbConnect();
 app.listen(port, () => {
   console.log(`GamerMatic app listening on port ${port}`);
 });
+
+app.get("/", (req, res) => {
+  res.send("Wlcome to gamermatic backed Service!!");
+});
