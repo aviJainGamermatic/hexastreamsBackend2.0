@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 
 const newLocal = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-const userSchema = new mongoose.Schema(
+const userModelSchema = new mongoose.Schema(
     {
       name: {
         type: String,
-        required: true,
       },
       userType: {
         type: String,
@@ -23,8 +22,8 @@ const userSchema = new mongoose.Schema(
       password: {
         type: String,
       },
-      created: {
-        type: String,
+      active: {
+        type: Boolean,
       },
       lastActive: {
         type: String,
@@ -41,4 +40,4 @@ const userSchema = new mongoose.Schema(
     {timestamps: true},
 );
 
-module.exports = mongoose.model('user', userSchema);
+module.exports = mongoose.model('user', userModelSchema);
