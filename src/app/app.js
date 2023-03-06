@@ -1,5 +1,5 @@
 const express = require('express');
-const port = 5000;
+const port = 5001;
 const cors = require('cors');
 const dbConfig = require('./dbConfig');
 require('dotenv').config();
@@ -11,14 +11,15 @@ app.use((req, res, next) => {
 })
 app.use(express.json());
 app.use('/user', require('./routes/userRoutes'));
-app.use("/game",require('./routes/gameRoutes') )
+app.use("/game",require('./routes/gameRoutes') );
+app.use("/live-stream",require("./routes/liveStreamingRoutes"));
 dbConfig.dbConnect();
 
 
 app.listen(port, () => {
   console.log(`GamerMatic app listening on port ${port}`);
 });
-app.get("/", (req, res) => {
+app.get("/api", (req, res) => {
 
   res.send("Wlcome to gamermatic backed Service!!");
 });

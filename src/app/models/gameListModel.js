@@ -1,7 +1,7 @@
 const { ObjectId } = require('mongodb');
 const mongoose = require('mongoose');
 
-const gameModelSchema = new mongoose.Schema(
+const gameListSchema = new mongoose.Schema(
     {
         title:{type: String},
         thumbnailUrl:{
@@ -32,4 +32,4 @@ const gameModelSchema = new mongoose.Schema(
     },{timestamps:true})
 
 
-    module.exports = mongoose.model('gameList', gameModelSchema);
+    module.exports = mongoose.model('gameList', gameListSchema);
