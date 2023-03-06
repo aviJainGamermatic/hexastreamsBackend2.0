@@ -1,7 +1,6 @@
-const gameModelSchema = require("../models/gamesSchedule");
+const gameModelSchema = require("../models/gameListModel");
 const mongoose = require("mongoose");
 const userModel = require("../models/userModel");
-const gamesSchedule = require("../models/gamesSchedule");
 const ObjectId = mongoose.Types.ObjectId;
 
 module.exports = {

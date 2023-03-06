@@ -90,14 +90,14 @@ module.exports = {
       console.log("mux mux mux", muxData.data);
       if (muxData) {
         const saveMuxData = await liveStreamModel.create({
-          streamKey: muxData.data.stream_key,
+          streamKey: muxData.data.data.stream_key,
           createdBy: req.user.userId,
-          status: muxData.data.status,
-          muxStreamingId: muxData.data.id,
-          startTime: muxData.created_at,
+          status: muxData.data.data.status,
+          muxStreamingId: muxData.data.data.id,
+          startTime: muxData.data.created_at,
         });
 
-        return { status: true, data: muxData.data };
+        return { status: true, data: muxData.data.data };
       }
     } catch (error) {
       return { status: false, code: 500, msg: `${error.message}` };
@@ -133,16 +133,16 @@ module.exports = {
         const simulcastData = await socialMediaStreamingModel.create({
           liveStreamId: ObjectId(liveStreamId),
           platformName: "youtube",
-          muxSimulcastId: streamData.data.id,
-          url: streamData.data.url,
-          streamKey: streamData.data.streamKey,
-          status: streamData.data.status,
-          passthrough: streamData.data.passthrough,
+          muxSimulcastId: streamData.data.data.id,
+          url: streamData.data.data.url,
+          streamKey: streamData.data.data.streamKey,
+          status: streamData.data.data.status,
+          passthrough: streamData.data.data.passthrough,
           createdBy: req.user.userId,
         });
         livestreamData.socialMediaIds.push(simulcastData._id);
         const saved = await livestreamData.save();
-        return { status: true, data: streamData.data };
+        return { status: true, data: streamData.data.data };
       } else {
         return {
           status: false,
@@ -181,16 +181,16 @@ module.exports = {
         const simulcastData = await socialMediaStreamingModel.create({
           liveStreamId: ObjectId(liveStreamId),
           platformName: "twitch",
-          muxSimulcastId: streamData.data.id,
-          url: streamData.data.url,
-          streamKey: streamData.data.streamKey,
-          status: streamData.data.status,
-          passthrough: streamData.data.passthrough,
+          muxSimulcastId: streamData.data.data.id,
+          url: streamData.data.data.url,
+          streamKey: streamData.data.data.streamKey,
+          status: streamData.data.data.status,
+          passthrough: streamData.data.data.passthrough,
           createdBy: req.user.userId,
         });
         livestreamData.socialMediaIds.push(simulcastData._id);
         const saved = await livestreamData.save();
-        return { status: true, data: streamData.data };
+        return { status: true, data: streamData.data.data };
       } else {
         return {
           status: false,
@@ -229,17 +229,17 @@ module.exports = {
         const simulcastData = await socialMediaStreamingModel.create({
           liveStreamId: ObjectId(liveStreamId),
           platformName: "facebook",
-          muxSimulcastId: streamData.data.id,
-          url: streamData.data.url,
-          streamKey: streamData.data.streamKey,
-          status: streamData.data.status,
-          passthrough: streamData.data.passthrough,
+          muxSimulcastId: streamData.data.data.id,
+          url: streamData.data.data.url,
+          streamKey: streamData.data.data.streamKey,
+          status: streamData.data.data.status,
+          passthrough: streamData.data.data.passthrough,
           createdBy: req.user.userId,
         });
 
         livestreamData.socialMediaIds.push(simulcastData._id);
         const saved = await livestreamData.save();
-        return { status: true, data: streamData.data };
+        return { status: true, data: streamData.data.data };
       } else {
         return {
           status: false,
@@ -252,9 +252,10 @@ module.exports = {
   },
   stopLiveStreaming: async function (req, res) {
     try {
-      const liveStreamId = req.body.id;
+      console.log('inside live streaming');
+      const liveStreamId = req.body.muxStreamingId;
       const socialMediaStream = req.body.muxSimulcastId;
-
+      console.log('live stream', liveStreamId, 'live stream 00', socialMediaStream);
       config = {
         method: "DELETE",
         url: `https://api.mux.com/video/v1/live-streams/${liveStreamId}/simulcast-targets/${socialMediaStream}`,
@@ -267,7 +268,9 @@ module.exports = {
             ).toString("base64"),
         },
       };
+      console.log('config', config);
       const streamData = await axios(config);
+      console.log(streamData);
       if (streamData.code === 204) {
         const updateSocialMedia = await socialMediaStreamingModel.findOne(
           { liveStreamId: muxStreamingId, muxSimulcastId: socialMediaStream },
