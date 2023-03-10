@@ -13,6 +13,7 @@ const uri = process.env.DB_DEV_URL;
 // const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 module.exports = {
   dbConnect: async function() {
+    mongoose.set('strictQuery', true);
     mongoose
  .connect(uri)   
  .then(() => console.log("Database connected!"))
