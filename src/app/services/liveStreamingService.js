@@ -314,7 +314,9 @@ module.exports = {
     try {
       const userId = req.user.userId;
      const data =  await liveStreamModel.find({createdBy:ObjectId(userId)})
-      return {status: false, data:data };
+     if (data){
+      return {status: true, data:data };
+     }
     } catch (error) {
       return{status: false, code:500, msg: `${error.message}`}
     }

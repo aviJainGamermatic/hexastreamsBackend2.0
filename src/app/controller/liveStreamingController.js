@@ -86,7 +86,7 @@ module.exports = {
   getLiveStreaminListByUserId: async function (req, res) {
     try {
       const result = await liveStreamingService.getAllLiveStreamsByUserId(req);
-      if (result.status) return res.json({ success: true, data: result });
+      if (result.status) return res.json({ success: true, data: result.data});
       else return res.json({ success: false, msg: result.msg });
     } catch (error) {
       return res.json({ success: false, msg: error.message });
