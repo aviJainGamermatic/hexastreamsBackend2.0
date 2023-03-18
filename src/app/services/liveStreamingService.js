@@ -95,7 +95,7 @@ module.exports = {
           status: muxData.data.data.status,
           muxStreamingId: muxData.data.data.id,
           startTime: muxData.data.created_at,
-          playbackId: muxData.data.data.playback_ids[0].id,
+          playbackId: muxData.data.data.playback_ids[0].id
         });
 
         return { status: true, data: saveMuxData };
@@ -314,10 +314,10 @@ module.exports = {
   getAllLiveStreamsByUserId: async function (req){
     try {
       const userId = req.user.userId;
-     const data =  await liveStreamModel.find({createdBy:ObjectId(userId)})
-     if (data){
+     const data =  await liveStreamModel.find({createdBy:ObjectId(userId)});
+     if(data){
       return {status: true, data:data };
-     }
+    }
     } catch (error) {
       return{status: false, code:500, msg: `${error.message}`}
     }
@@ -352,19 +352,27 @@ module.exports = {
   deleteLiveStream: async function (req){
     try {
       const userId = req.user.userId;
-      const data =  await liveStreamModel.find({createdBy:ObjectId(userId)})
-      
+      const data =  await liveStreamModel.find({createdBy:ObjectId(userId)});
+
       for (let i = 0; i < data.length; i++) {
         const element = data[i].muxStreamingId;
         console.log('element element', element);
         console.log('elelement.muxStreamingId', element);
-       const deleteData = await  axios.delete(`https://api.mux.com/video/v1/live-streams/${element}`, {
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Basic ${(`${process.env.MUX_TOKEN_ID}:${process.env.MUX_TOKEN_SECRET}`)}`
-  }
-});
-        console.log('stream Data', deleteData); 
+        config = {
+          method: "DELETE",
+          url: `https://api.mux.com/video/v1/live-streams/${element}`,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization:
+              "Basic " +
+              Buffer.from(
+                `${process.env.MUX_TOKEN_ID}:${process.env.MUX_TOKEN_SECRET}`
+              ).toString("base64"),
+          },
+        };
+        console.log('config', config);
+        const streamData = await axios(config);
+        console.log('stream Data stream Data',streamData)
       }
     } catch (error) {
       console.log('ee',error )
