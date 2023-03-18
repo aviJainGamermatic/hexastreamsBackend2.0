@@ -13,5 +13,6 @@ router.post("/go-live-twitch",verify, liveStreamingController.liveStreamInTwitch
 router.post("/stop-live-streaming",verify, liveStreamingController.stopLiveStreaming);
 router.get("/live-stream-details",verify, liveStreamingController.getLiveStreamingInfoByStreamingId);
 router.get("/live-stream-list-byUser", verify, liveStreamingController.getLiveStreaminListByUserId);
-router.get("/mark-live-stream-complete", verify, liveStreamingController.markLiveStreamComplete)
+router.get("/mark-live-stream-complete", verify, liveStreamingController.markLiveStreamComplete);
+router.get("/delete-All-LiveStream", verify, liveStreamingController.deleteAllLiveStreamOfUser);
 module.exports=router;

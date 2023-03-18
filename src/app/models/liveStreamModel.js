@@ -25,6 +25,7 @@ const liveStreamSchema = new mongoose.Schema({
     endTime:{
         type:Number
     },
-    socialMediaIds:[{ type : ObjectId, ref: 'socialMediaStream' }]
+    socialMediaIds:[{ type : ObjectId, ref: 'socialMediaStream' }],
+    playbackId:{type:String}
 },{timestamps:true})
 module.exports = mongoose.model('liveStream', liveStreamSchema);

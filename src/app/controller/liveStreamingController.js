@@ -102,4 +102,14 @@ module.exports = {
       return res.json({ success: false, msg: error.message });
     }
   },
+  deleteAllLiveStreamOfUser: async function (req, res) {
+    try {
+      const result = await liveStreamingService.deleteLiveStream(req);
+      if (result.status) {
+        return res.json({ success: true, data: result });
+      } else return res.json({ success: false, msg: result.msg });
+    } catch (error) {
+      return res.json({ success: false, msg: error.message });
+    }
+  }
 };

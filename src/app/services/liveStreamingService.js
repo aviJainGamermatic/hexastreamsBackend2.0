@@ -95,9 +95,10 @@ module.exports = {
           status: muxData.data.data.status,
           muxStreamingId: muxData.data.data.id,
           startTime: muxData.data.created_at,
+          playbackId: muxData.data.data.playback_ids[0].id,
         });
 
-        return { status: true, data: muxData.data.data };
+        return { status: true, data: saveMuxData };
       }
     } catch (error) {
       return { status: false, code: 500, msg: `${error.message}` };
@@ -347,6 +348,30 @@ module.exports = {
     } catch (error) {
       return{status: false, code:500, msg: `${error.message}`}
     }
+  },
+  deleteLiveStream: async function (req){
+    try {
+      const userId = req.user.userId;
+      const data =  await liveStreamModel.find({createdBy:ObjectId(userId)})
+      
+      for (let i = 0; i < data.length; i++) {
+        const element = data[i].muxStreamingId;
+        console.log('element element', element);
+        console.log('elelement.muxStreamingId', element);
+       const deleteData = await  axios.delete(`https://api.mux.com/video/v1/live-streams/${element}`, {
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Basic ${(`${process.env.MUX_TOKEN_ID}:${process.env.MUX_TOKEN_SECRET}`)}`
+  }
+});
+        console.log('stream Data', deleteData); 
+      }
+    } catch (error) {
+      console.log('ee',error )
+      return {status: false, code :500, msg:`${error.message}`}
+    }
+
+
   }
 };
 
