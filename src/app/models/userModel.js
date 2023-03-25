@@ -30,8 +30,7 @@ const userModelSchema = new mongoose.Schema(
         required: false,
       },
       otp: {
-        type: String,
-        required: true,
+        type: String
       },
       organization: {
         type: String,

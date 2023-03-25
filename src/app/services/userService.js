@@ -4,6 +4,9 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const Joi = require('joi');
+const SALT_ROUNDS = 10;
+
 module.exports = {
   register: async function (req) {
     try {
@@ -25,26 +28,6 @@ module.exports = {
         const ENDPOINT = "https://send.api.mailtrap.io/";
 
         const client = new MailtrapClient({ endpoint: ENDPOINT, token: TOKEN });
-
-        const sender = {
-          email: "mailtrap@hexaesports.in",
-          name: "Mailtrap Test",
-        };
-        const recipients = [
-          {
-            email: "xdproevents@gmail.com",
-          },
-        ];
-
-        client
-          .send({
-            from: sender,
-            to: recipients,
-            subject: "You are awesome!",
-            text: `Congrats for sending test email with Mailtrap! OTP - ${newOtp}`,
-            category: "Integration Test",
-          })
-          .then(console.log, console.error);
 
         return {
           status: true,
@@ -73,39 +56,46 @@ module.exports = {
   },
   signUp: async function (req) {
     try {
-      const { email, otp, phoneNumber, password, organization, userType } =
-        req.body;
-      const registeredDetails = await userModel.findOne({
-        email: email,
-        otp: otp,
+      const schema = Joi.object({
+        email: Joi.string().email().required(),
+        phoneNumber: Joi.string().optional(),
+        password: Joi.string().required(),
+        organization: Joi.string().optional(),
+        userType: Joi.string().optional(),
       });
-      console.log("registeredDetails after find", registeredDetails);
-      if (!password) {
-        return { status: false, code: 404, msg: "Password is required!" };
-      }
-      if (!userType) {
-        return { status: false, code: 404, msg: "User type is required!" };
-      }
-      if (registeredDetails) {
-        registeredDetails.phoneNumber = phoneNumber ? phoneNumber : null;
-        const encryptedPassword = await bcrypt.hash(password, 10);
-        registeredDetails.userType = userType;
-        registeredDetails.password = encryptedPassword
-          ? encryptedPassword
-          : null;
-        registeredDetails.organization = organization ? organization : "";
-        await registeredDetails.save();
-        // save user token
-        return { status: true, code: 200, msg: "User created Successfully !" };
-      } else {
+  
+      const { error, value } = schema.validate(req.body);
+      if (error) {
         return {
           status: false,
-          code: 404,
-          msg: "Email or otp mismatched while creating account!",
+          code: 400,
+          msg: error.details[0].message,
         };
       }
+  
+      const { email, phoneNumber, password, organization, userType } = value;
+  
+      const existingUser = await userModel.findOne({ email });
+  
+      if (existingUser) {
+        return { status: false, code: 409, msg: 'Email already exists' };
+      }
+  
+      const encryptedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+      const newUser = new userModel({
+        email,
+        phoneNumber,
+        password: encryptedPassword,
+        organization: organization || '',
+        // userType: userType || '',
+      });
+  
+      await newUser.save();
+  
+      return { status: true, code: 200, msg: 'User created successfully!' };
     } catch (error) {
-      return { status: false, code: 500, msg: `${error.message}` };
+      console.error(error);
+      return { status: false, code: 500, msg: 'Internal server error' };
     }
   },
   login: async function (req) {
