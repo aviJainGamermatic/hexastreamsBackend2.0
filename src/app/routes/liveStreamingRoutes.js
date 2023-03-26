@@ -6,7 +6,7 @@ const verify = require("../middleware/auth")
 router.get("/verify",verify, liveStreamingController.verify);
 router.post("/create-room", verify, liveStreamingController.createRoom);
 router.delete("/delete-room", verify, liveStreamingController.deleteRoom);
-router.get("/create-livestream", verify, liveStreamingController.createLiveStream);
+router.post("/create-livestream", verify, liveStreamingController.createLiveStream);
 router.post("/go-live-youtube",verify, liveStreamingController.liveStreamInYoutube);
 router.post("/go-live-facebook", verify, liveStreamingController.liveStreamInFacebook);
 router.post("/go-live-twitch",verify, liveStreamingController.liveStreamInTwitch);
