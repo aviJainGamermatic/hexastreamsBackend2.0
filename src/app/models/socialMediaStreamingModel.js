@@ -9,7 +9,7 @@ const socialMediaStreamingSchema = new mongoose.Schema(
     },
     platformName: {
       type: String,
-      enum: ["youtube", "twitch", "facebooklive"],
+      enum: ["youtube", "twitch", "facebook"],
     },
     muxSimulcastId: {
       type: String,
