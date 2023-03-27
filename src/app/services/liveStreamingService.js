@@ -156,6 +156,7 @@ module.exports = {
   },
   restreamToTwitch: async function (req) {
     const liveStreamId = req.body.liveStreamId;
+    const twitch = req.body.twitch
     try {
       config = {
         method: "POST",
@@ -204,6 +205,7 @@ module.exports = {
   },
   restreamToFacebook: async function (req) {
     const liveStreamId = req.body.liveStreamId;
+    const facebook =  req.body.facebook
     try {
       config = {
         method: "POST",
