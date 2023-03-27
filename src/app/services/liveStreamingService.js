@@ -170,7 +170,7 @@ module.exports = {
             ).toString("base64"),
         },
         data: {
-          url: twitch.url,
+          url: "rtmp://live.twitch.tv/app/",
           stream_key: twitch.streamKey,
           passthrough: twitch.passthrough,
         },
@@ -219,7 +219,7 @@ module.exports = {
             ).toString("base64"),
         },
         data: {
-          url: facebook.url,
+          url: "rtmps://live-api-s.facebook.com:443/rtmp/",
           stream_key: facebook.streamKey,
           passthrough: facebook.passthrough,
         },
