@@ -105,11 +105,11 @@ module.exports = {
     }
   },
   restreamToYoutube: async function (req) {
-    const liveStreamId = req.body.muxStreamingId;
+    const liveStreamId = req.body.liveStreamId;
 
     const youtube = req.body.youtube;
     try {
-      config = {
+      let config = {
         method: "POST",
         url: `https://api.mux.com/video/v1/live-streams/${liveStreamId}/simulcast-targets`,
         headers: {
@@ -122,7 +122,7 @@ module.exports = {
         },
         data: {
           url: youtube.url,
-          stream_key: youtube.stream_key,
+          stream_key: youtube.streamKey,
           passthrough: youtube.passthrough,
         },
       };
@@ -132,7 +132,7 @@ module.exports = {
           muxStreamingId: liveStreamId,
         });
         const simulcastData = await socialMediaStreamingModel.create({
-          liveStreamId: ObjectId(liveStreamId),
+          liveStreamId: ObjectId(livestreamData._id),
           platformName: "youtube",
           muxSimulcastId: streamData.data.data.id,
           url: streamData.data.data.url,
@@ -156,7 +156,7 @@ module.exports = {
   },
   restreamToTwitch: async function (req) {
     const liveStreamId = req.body.liveStreamId;
-    const twitch = req.body.twitch
+    const twitch = req.body.twitch;
     try {
       config = {
         method: "POST",
@@ -171,7 +171,7 @@ module.exports = {
         },
         data: {
           url: twitch.url,
-          stream_key: twitch.stream_key,
+          stream_key: twitch.streamKey,
           passthrough: twitch.passthrough,
         },
       };
@@ -181,7 +181,7 @@ module.exports = {
           muxStreamingId: liveStreamId,
         });
         const simulcastData = await socialMediaStreamingModel.create({
-          liveStreamId: ObjectId(liveStreamId),
+          liveStreamId: ObjectId(livestreamData._id),
           platformName: "twitch",
           muxSimulcastId: streamData.data.data.id,
           url: streamData.data.data.url,
@@ -205,7 +205,7 @@ module.exports = {
   },
   restreamToFacebook: async function (req) {
     const liveStreamId = req.body.liveStreamId;
-    const facebook =  req.body.facebook
+    const facebook = req.body.facebook;
     try {
       config = {
         method: "POST",
@@ -220,7 +220,7 @@ module.exports = {
         },
         data: {
           url: facebook.url,
-          stream_key: facebook.stream_key,
+          stream_key: facebook.streamKey,
           passthrough: facebook.passthrough,
         },
       };
@@ -230,7 +230,7 @@ module.exports = {
           muxStreamingId: liveStreamId,
         });
         const simulcastData = await socialMediaStreamingModel.create({
-          liveStreamId: ObjectId(liveStreamId),
+          liveStreamId: ObjectId(livestreamData._id),
           platformName: "facebook",
           muxSimulcastId: streamData.data.data.id,
           url: streamData.data.data.url,
@@ -384,5 +384,3 @@ module.exports = {
 
   }
 };
-
- 
