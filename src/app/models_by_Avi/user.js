@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const {ObjectId} = mongoose.Schema;
+const { ObjectId } = mongoose.Schema;
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -19,6 +19,14 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     required: true
   },
- 
-  
+  linkedAccounts: [
+    {
+      type: ObjectId,
+      ref: 'Account'
+    }
+  ]
 });
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;
