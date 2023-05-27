@@ -1,6 +1,47 @@
 const userService = require('../services/userService');
+const User=require('../models/userModel');
 
 module.exports = {
+
+
+Update: async function(req) {
+  try {
+    const { userId, email, phoneNumber, organization, userType } = req.body;
+
+    const existingUser = await userModel.findById(userId);
+    if (!existingUser) {
+      return {
+        status: false,
+        code: 404,
+        msg: 'User not found',
+      };
+    }
+
+    existingUser.email = email || existingUser.email;
+    existingUser.phoneNumber = phoneNumber || existingUser.phoneNumber;
+    existingUser.organization = organization || existingUser.organization;
+    existingUser.userType = userType || existingUser.userType;
+
+    await existingUser.save();
+
+    return {
+      status: true,
+      code: 200,
+      msg: 'User information updated successfully',
+      data: existingUser,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      status: false,
+      code: 500,
+      msg: 'Internal server error',
+    };
+  }
+},
+
+
+
   register: async function(req, res) {
     try {
       const result = await userService.register(req);

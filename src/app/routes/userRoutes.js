@@ -6,6 +6,7 @@ router.post('/signUp', userController.signUp);
 router.post('/register', userController.register);
 router.post('/verify', userController.verify);
 router.post('/login', userController.login);
+router.post('/update', userController.Update);
 
 
 
