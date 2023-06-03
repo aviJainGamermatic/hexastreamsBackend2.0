@@ -12,7 +12,7 @@ app.use("/live-stream",require("./routes/liveStreamingRoutes"));
 dbConfig.dbConnect();
 
 
-app.listen(port, () => {
+app.listen(6000, () => {
   console.log(`GamerMatic app listening on port ${port}`);
 });
 app.get("/api", (req, res) => {
