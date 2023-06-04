@@ -1,8 +1,14 @@
 const mongoose = require('mongoose');
-const {ObjectId} = mongoose.Schema;
+// const {ObjectId} = mongoose.Schema;
+const { Schema, model } = mongoose;
 
 
 const AccountSchema = new mongoose.Schema({
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }, 
 type: {
     type: String,
     required: true
@@ -21,4 +27,6 @@ type: {
   }
 });
 
-module.exports = mongoose.model("Account", AccountSchema);
+const Account = model('Account', AccountSchema);
+
+module.exports = Account;

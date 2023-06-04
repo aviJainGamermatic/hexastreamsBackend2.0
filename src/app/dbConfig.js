@@ -5,7 +5,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 
 // Connection URI
-const uri = process.env.DB_DEV_URL;
+const uri = "mongodb+srv://gamermaticAdmin:Iig6vEI2Aks1z7lx@gamermaticdevcluster0.itqvjux.mongodb.net/gamermatic_dev?retryWrites=true&w=majority";
 
 // Create a new MongoClient
 // const client = new MongoClient(uri);

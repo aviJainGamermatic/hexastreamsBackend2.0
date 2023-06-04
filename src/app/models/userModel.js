@@ -1,42 +1,54 @@
 const mongoose = require('mongoose');
+// const { ObjectId } = mongoose.Schema;
+const { Schema, model } = mongoose;
 
-const newLocal = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-const userModelSchema = new mongoose.Schema(
-    {
-      name: {
-        type: String,
-      },
-      userType: {
-        type: String,
-        enum: ['host', 'gamer'],
-      },
-      email: {
-        type: String,
-        required: true,
-        unique: [true, 'email already exists in database!'],
-        match:newLocal
-      },
-      phoneNumber: {
-        type: Number,
-      },
-      password: {
-        type: String,
-      },
-      active: {
-        type: Boolean,
-      },
-      lastActive: {
-        type: String,
-        required: false,
-      },
-      otp: {
-        type: String
-      },
-      organization: {
-        type: String,
-      },
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
     },
-    {timestamps: true},
+    userType: {
+      type: String,
+      enum: ['host', 'gamer'],
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      match: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+    },
+    phoneNumber: {
+      type: String,
+      required: true,
+    },
+    password: {
+      type: String,
+    },
+    active: {
+      type: Boolean,
+    },
+    lastActive: {
+      type: String,
+    },
+    otp: {
+      type: String,
+    },
+    organization: {
+      type: String,
+    },
+    isPaidUser: {
+      type: Boolean,
+      // required: true,
+    },
+    linkedAccounts: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Account'
+    }],
+  },
+  { timestamps: true }
 );
 
-module.exports = mongoose.model('user', userModelSchema);
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;
