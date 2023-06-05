@@ -2,6 +2,7 @@ const {google} = require('googleapis');
 const {OAuth2Client} = require('google-auth-library');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
+const liveStreamModel = require("../models/liveStreamModel");
 
 // client-id, client secret and redirect uri
 const CLIENT_ID = "780976620194-ch6l1b0ss0aajl56p6i0n938mu6hq7jh.apps.googleusercontent.com";
@@ -66,7 +67,13 @@ generatetoken: async function(req){
         let streamKey = res.data.cdn.ingestionInfo.streamName;
     console.log(`Stream key: ${streamKey}`);
      let rtmpUrl = res.data.cdn.ingestionInfo.ingestionAddress;
-    return {
+
+     // updating stream key
+     const updatedLivestream= await liveStreamModel.findOneAndUpdate({ createdBy: req.user._id },
+        { $set: {streamKey:streamKey} },
+          { new: true });
+  
+return {
         status: true, code: 200, msg: "stream key generated", data: streamKey,
       };
       },
