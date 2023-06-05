@@ -15,7 +15,7 @@ const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 module.exports={
     // GENERATE AUTH URL
     generateAuthUrl: async function(req){
-        
+        try{
         const url = oAuth2Client.generateAuthUrl({
             access_type: 'offline',
             scope: ['https://www.googleapis.com/auth/youtube'],
@@ -26,7 +26,10 @@ module.exports={
             code: 200,
             msg:  "url generated where user can choose google account",
             data: url,
-           };
+           };}
+           catch(err){
+            console.log(err)
+           }
         
         
     },
@@ -34,6 +37,7 @@ module.exports={
 
     //GENERATING TOKEN AT REDIRECT URI
 generatetoken: async function(req){
+    try{
     const code=req.query.code;
     if(code){
         const {tokens} =  oAuth2Client.getToken(code,(err,tokens)=>{
@@ -46,11 +50,17 @@ generatetoken: async function(req){
             msg: "User authorised",
             data:tokens,
           };
+
         });
-}},
+}}
+catch(err){
+    console.log(err);
+}
+},
 
   //GENERATING STREAM KEY
     generateStreamkey:async function (req){
+        try{
         const youtube = google.youtube({version: 'v3', auth: oAuth2Client});
         const res = await youtube.liveStreams.insert({
           part: ['snippet,cdn'],
@@ -75,7 +85,10 @@ generatetoken: async function(req){
   
 return {
         status: true, code: 200, msg: "stream key generated", data: streamKey,
-      };
+      };}
+      catch(err){
+        console.log(err);
+      }
       },
      
 

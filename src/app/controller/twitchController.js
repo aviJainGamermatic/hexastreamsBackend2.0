@@ -1,13 +1,11 @@
-const youtubeService = require('../services/youtubeServices.js');
-const {google} = require('googleapis');
-const {OAuth2Client} = require('google-auth-library');
+const twitchService = require('../services/twitchServices.js');
 const cookieParser = require('cookie-parser');
 
 
 module.exports = {
-    signUpwithGoogle: async function(req, res) {
+    generatetwitchurl: async function(req, res) {
       try {
-        const url = await youtubeService.generateAuthUrl();
+        const url = await twitchService.generatetwitchurl();
         
      return res.json({success: true, data: url});
       } catch (error) {
@@ -15,9 +13,9 @@ module.exports = {
       }
     },
 
-    redirectUri: async function(req, res) {
+    generatetwitchtoken: async function(req, res) {
       try {
-        const result = await youtubeService.generatetoken(req);
+        const result = await twitchService.generatetwitchtoken(req);
         const tokens=result.data;
         res.cookie('access_token', tokens.access_token, {
             maxAge: 86400000, // Expiry time in milliseconds (e.g., 24 hours)
@@ -37,9 +35,9 @@ module.exports = {
         });
       }
     },
-    streamKey: async function(req, res) {
+    generatestreamkey: async function(req, res) {
       try {
-        const result = await youtubeService.generateStreamkey(req);
+        const result = await twitchService.generatestreamkey(req);
          return res.json({success: true, msg: result.msg});
         
       } catch (error) {

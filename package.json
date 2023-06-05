@@ -8,6 +8,8 @@
     "joi": "^17.9.1",
     "mailtrap": "^3.0.1",
     "moment": "^2.29.4",
-    "razorpay": "^2.8.6"
+    "razorpay": "^2.8.6",
+    "twitch": "^4.6.7",
+    "twitch-auth": "^4.6.7"
   }
 }

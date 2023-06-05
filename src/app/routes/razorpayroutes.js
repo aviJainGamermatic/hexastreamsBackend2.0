@@ -10,13 +10,13 @@ router.post("/plans", razorpayController.createPlan);
 //GET PLAN
 router.get("/plans/find/:id", razorpayController.getPlan);
 //GET ALL PLANS
-router.get("/plans/all", razorpayController.getPlans);
+router.get("/plans/all",verify, razorpayController.getPlans);
 
 
 //CREATE COUPONS
 router.post("/coupons", razorpayController.createCoupon);
 //GET COUPON
-router.get("/coupons/find/:code", razorpayController.getCoupon);
+router.get("/coupons/find/:code",verify, razorpayController.getCoupon);
 //GET ALL COUPONS
 router.get("/coupons/all", razorpayController.getCoupons);
 
