@@ -1,7 +1,7 @@
 const express = require('express');
 const router = new express.Router();
 const userController = require('../controller/userController');
-const savelinkedAcc=require('../controller/linkedAcc')
+const savelinkedAcc=require('../controller/linkedAcc');
 
 router.post('/signUp', userController.signUp);
 router.post('/register', userController.register);
