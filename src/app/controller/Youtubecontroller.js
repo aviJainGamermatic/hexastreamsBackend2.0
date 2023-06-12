@@ -17,19 +17,18 @@ module.exports = {
 
     redirectUri: async function(req, res) {
       try {
-        const result = await youtubeService.generatetoken(req);
-        const tokens=result.data;
-        res.cookie('access_token', tokens.access_token, {
+        let code=req.query.code;
+        
+        const result = await youtubeService.generatetoken(code);
+        let accesstoken=result.data;
+        res.cookie('access_token', accesstoken, {
             maxAge: 86400000, // Expiry time in milliseconds (e.g., 24 hours)
-            httpOnly: true, // Cookie is accessible only via HTTP(S), not JavaScript
+           // httpOnly: true, // Cookie is accessible only via HTTP(S), not JavaScript
         
-          });
-        
-          
-        
+        });
         return res.status(result.code).json(result);
       } catch (error) {
-        console.error(error);
+        console.log(error);
         return res.status(500).json({
           status: false,
           code: 500,
@@ -39,6 +38,8 @@ module.exports = {
     },
     streamKey: async function(req, res) {
       try {
+        const cookieValue = req.cookies.acess_token;
+  console.log(cookieValue);
         const result = await youtubeService.generateStreamkey(req);
          return res.json({success: true, msg: result.msg});
         

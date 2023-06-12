@@ -2,7 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 
 
-const port = 5000;
+const port = 3000;
 const cors = require('cors');
 const dbConfig = require('./dbConfig');
 require('dotenv').config();
@@ -13,6 +13,8 @@ app.use(cookieParser());
 app.use('/user', require('./routes/userRoutes'));
 app.use("/game",require('./routes/gameRoutes') );
 app.use("/live-stream",require("./routes/liveStreamingRoutes"));
+app.use("/",require("./routes/youtubeRoutes"));
+//app.use("/razorpay",require("./routes/razorpayroutes"));
 dbConfig.dbConnect();
 
 
