@@ -36,23 +36,25 @@ module.exports={
      
 
     //GENERATING TOKEN AT REDIRECT URI
-generatetoken: async function(req){
+generatetoken: async function(code){
     try{
-    const code=req.query.code;
-    if(code){
-        const {tokens} =  oAuth2Client.getToken(code,(err,tokens)=>{
-            if(err) throw err;
+    
+console.log(code);
+        const {tokens} = await oAuth2Client.getToken(code);
+            
             console.log({tokens});
         oAuth2Client.setCredentials(tokens);
+        console.log(tokens)
          return {
             status: true,
             code: 200,
             msg: "User authorised",
-            data:tokens,
+            data:tokens.access_token,
           };
 
-        });
-}}
+    
+
+}
 catch(err){
     console.log(err);
 }
@@ -61,6 +63,9 @@ catch(err){
   //GENERATING STREAM KEY
     generateStreamkey:async function (req){
         try{
+         ////   const cookieValue = req.cookies.acess_token;
+//console.log(cookieValue);
+  //oAuth2Client.setCredentials(cookieValue);
         const youtube = google.youtube({version: 'v3', auth: oAuth2Client});
         const res = await youtube.liveStreams.insert({
           part: ['snippet,cdn'],

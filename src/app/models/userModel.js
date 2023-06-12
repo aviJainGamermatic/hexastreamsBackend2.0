@@ -1,57 +1,67 @@
+
+
 const mongoose = require('mongoose');
-const { ObjectId } = require("mongodb");
+const Schema = mongoose.Schema;
+const { ObjectId } = require('mongodb');
 
 const newLocal = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-const userModelSchema = new mongoose.Schema(
-    {
-      name: {
-        type: String,
-      },
-      PlanId:{
-        type:ObjectId,
-        ref:"Plans"
+const userSchema = new Schema(
+  {
+    name: {
+      type: String,
     },
-    CouponId:{
+    userType: {
+      type: String,
+      enum: ['host', 'gamer'],
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: [true, 'email already exists in the database!'],
+      match: newLocal,
+    },
+    phoneNumber: {
+      type: Number,
+    },
+    isPaid:{
+      type:Boolean,
+      default:false,
+
+    },
+    password: {
+      type: String,
+    },
+    PlanId:{
       type:ObjectId,
-      ref:"Coupon"
+      ref:"Plans"
   },
-
-      userType: {
-        type: String,
-        enum: ['host', 'gamer'],
-      },
-      email: {
-        type: String,
-        required: true,
-        unique: [true, 'email already exists in database!'],
-        match:newLocal
-      },
-      phoneNumber: {
-        type: Number,
-      },
-      password: {
-        type: String,
-      },
-      active: {
-        type: Boolean,
-      },
-      lastActive: {
-        type: String,
-        required: false,
-      },
-      otp: {
-        type: String
-      },
-      isPaid:{
-        type:Boolean,
-        default:false,
-
-      },
-      organization: {
-        type: String,
-      },
+  CouponId:{
+    type:ObjectId,
+    ref:"Coupon"
+},
+    active: {
+      type: Boolean,
     },
-    {timestamps: true},
+    lastActive: {
+      type: String,
+      required: false,
+    },
+    otp: {
+      type: String,
+    },
+    organization: {
+      type: String,
+    },
+    linkedAccounts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Account',
+      },
+    ],
+  },
+  { timestamps: true }
 );
 
-module.exports = mongoose.model('user', userModelSchema);
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;

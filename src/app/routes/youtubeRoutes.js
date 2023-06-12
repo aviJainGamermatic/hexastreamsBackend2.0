@@ -13,6 +13,6 @@ router.get('/generateUrl',youtubeController. signUpwithGoogle);
 router.get("/auth/callback",youtubeController.redirectUri);
 
 //generating strean key
-router.get("/generateyoutubestreamkey",verify,youtubeController.streamKey);
+router.get("/generateyoutubestreamkey",youtubeController.streamKey);
 
 module.exports=router;
