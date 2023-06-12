@@ -1,7 +1,7 @@
 const { application } = require('express');
 const express = require('express');
 const router = new express.Router();
-const razorpayController = require("../controller/Razorpaymodelcontroller");
+const razorpayController = require("../controller/Razorpaymodelcontrollers");
 const verify = require("../middleware/auth")
 
 
