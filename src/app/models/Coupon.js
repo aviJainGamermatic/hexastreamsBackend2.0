@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
+const { ObjectId } = require('mongodb');
 const CouponSchema = new mongoose.Schema({
   code: {
     type: String,

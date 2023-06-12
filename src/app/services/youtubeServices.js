@@ -3,6 +3,8 @@ const {OAuth2Client} = require('google-auth-library');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
 const liveStreamModel = require("../models/liveStreamModel");
+const userModel = require("../models/userModel");
+const jwt = require("jsonwebtoken");
 
 // client-id, client secret and redirect uri
 const CLIENT_ID = "780976620194-ch6l1b0ss0aajl56p6i0n938mu6hq7jh.apps.googleusercontent.com";
@@ -18,7 +20,8 @@ module.exports={
         try{
         const url = oAuth2Client.generateAuthUrl({
             access_type: 'offline',
-            scope: ['https://www.googleapis.com/auth/youtube'],
+            scope: ['https://www.googleapis.com/auth/youtube',
+            'https://www.googleapis.com/auth/userinfo.email' , 'https://www.googleapis.com/auth/userinfo.profile'],
          });
           console.log(`Authorize this app by visiting this URL: ${url}`);
           return {
@@ -40,16 +43,44 @@ generatetoken: async function(code){
     try{
     
 console.log(code);
-        const {tokens} = await oAuth2Client.getToken(code);
-            
+        const {tokens} = await oAuth2Client.getToken(code);      
             console.log({tokens});
         oAuth2Client.setCredentials(tokens);
-        console.log(tokens)
+        const people = google.people({ version: 'v1', auth: oAuth2Client });
+        const res = await people.people.get({
+          resourceName: 'people/me',
+          personFields: 'names,emailAddresses',
+        });
+        
+        let jwttoken=null;
+        const name = res.data.names[0].displayName;
+        const email = res.data.emailAddresses[0].value;
+        
+        // Do something with the name and email
+        console.log('Name:', name);
+        console.log('Email:', email);
+        const user = await userModel.findOne({ email: email });
+        console.log("------------------------------", user);
+        if (user) {
+          console.log("user already exists");
+           jwttoken = jwt.sign(
+            { userId: user._id, email: user.email },
+            "secretKey"
+          );
+          // console.log(jwttoken);
+        } else {
+            const newUser = new userModel({
+                name:name,
+                email:email,
+              });
+              await newUser.save();
+
+        }
          return {
             status: true,
             code: 200,
             msg: "User authorised",
-            data:tokens.access_token,
+            data:jwttoken,
           };
 
     

@@ -14,7 +14,7 @@ app.use('/user', require('./routes/userRoutes'));
 app.use("/game",require('./routes/gameRoutes') );
 app.use("/live-stream",require("./routes/liveStreamingRoutes"));
 app.use("/",require("./routes/youtubeRoutes"));
-//app.use("/razorpay",require("./routes/razorpayroutes"));
+app.use("/razorpay",require("./routes/razorpayroutes"));
 dbConfig.dbConnect();
 
 

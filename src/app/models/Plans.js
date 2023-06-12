@@ -1,4 +1,6 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
+const { ObjectId } = require('mongodb');
+
 const PlanSchema = new mongoose.Schema({
   name: {
     type: String,
