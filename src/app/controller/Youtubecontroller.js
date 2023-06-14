@@ -20,13 +20,13 @@ module.exports = {
         let code=req.query.code;
         
         const result = await youtubeService.generatetoken(code);
-        let jwttoken=result.data;
-        res.cookie('jwt-token', jwttoken, {
-            maxAge: 86400000, // Expiry time in milliseconds (e.g., 24 hours)
-           // httpOnly: true, // Cookie is accessible only via HTTP(S), not JavaScript
-        
-        });
-        return res.status(result.code).json(result);
+
+        if(!req.cookies['jwt-token(google)'])
+        res.redirect('/google-auth');
+        else
+        res.redirect('/googleaccounts');
+       
+        //return res.status(result.code).json(result);
       } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -36,6 +36,42 @@ module.exports = {
         });
       }
     },
+    googleauth: async function(req, res) {
+        try {
+          
+          const result = await youtubeService.googleauth();
+          let jwttoken=result.data;
+          res.cookie('jwt-token(google)', jwttoken, {
+              maxAge: 86400000, // Expiry time in milliseconds (e.g., 24 hours)
+             // httpOnly: true, // Cookie is accessible only via HTTP(S), not JavaScript
+          
+          });
+          return res.status(result.code).json(result);
+        } catch (error) {
+          console.log(error);
+          return res.status(500).json({
+            status: false,
+            code: 500,
+            msg: 'user not authorised',
+          });
+        }
+      },
+      googleaccounts: async function(req, res) {
+        try {
+          console.log(5);
+          const result = await youtubeService.googleaccounts(req);
+          
+          return res.status(result.code).json(result);
+        } catch (error) {
+          console.log(error);
+          return res.status(500).json({
+            status: false,
+            code: 500,
+            msg: 'user not authorised',
+            
+          });
+        }
+      },
     streamKey: async function(req, res) {
       try {
         

@@ -15,11 +15,11 @@ type: {
   },
   authID: {
     type: String,
-    required: true
+    
   },
   token: {
     type: String,
-    required: true
+    
   },
   title: {
     type: String,
