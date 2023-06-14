@@ -52,9 +52,10 @@ async function generateStreamKey() {
         generatetwitchtoken: async function(req){
             const code = req.query.code;
             console.log(code);
-            if(code){        
+                   
             try {
               // Exchange the authorization code for a token
+              if(!code) throw err;
               const response = await axios.post('https://id.twitch.tv/oauth2/token', null, {
                   params: {
                       client_id: clientId,
@@ -73,10 +74,34 @@ async function generateStreamKey() {
                   };
            }  catch (error) {
               console.error('Error getting access token:', error);
-            }}
+            }
           },
 
           generatetwitchstreamkey:async function(req){
+            let token=req.cookies['twitch_token']
+                try {
+                
+                  const response = await axios.get(
+                    `https://api.twitch.tv/helix/streams/key?broadcaster_id=${channelId}`,
+                    null,
+                    {
+                      headers: {
+                        'Client-ID': clientId,
+                        'Authorization': `Bearer ${token}`
+                      }
+                    }
+                  );
+              
+                  
+                    const streamKey = response.data.data[0].stream_key;
+                    return {
+                        status: true, code: 200, msg: "stream key generated", data:streamKey,
+                      };
+                  
+                } catch (error) {
+                  console.error(error);
+                }
+            
 
           },
 
