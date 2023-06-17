@@ -15,6 +15,7 @@ app.use("/game",require('./routes/gameRoutes') );
 app.use("/live-stream",require("./routes/liveStreamingRoutes"));
 app.use("/",require("./routes/youtubeRoutes"));
 app.use("/razorpay",require("./routes/razorpayroutes"));
+app.use("/twitch",require("./routes/twitchRoutes"));
 dbConfig.dbConnect();
 
 

@@ -3,6 +3,7 @@ const {OAuth2Client} = require('google-auth-library');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
 const liveStreamModel = require("../models/liveStreamModel");
+const accountModel=require("../models/Accounts");
 const userModel = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 
@@ -43,9 +44,31 @@ generatetoken: async function(code){
     try{
     
 console.log(code);
-        const {tokens} = await oAuth2Client.getToken(code);      
+        const {tokens} = await oAuth2Client.getToken(code); 
+        let accessToken=tokens.access_token;     
             console.log({tokens});
         oAuth2Client.setCredentials(tokens);
+
+         return {
+            status: true,
+            code: 200,
+            msg: "User authorised",
+            data:accessToken,
+          };
+
+}
+catch(err){
+    console.log(err);
+}
+},
+
+
+//GOOGLE AUTH
+googleauth: async function(code){
+    try{
+    
+
+        //getting personal info
         const people = google.people({ version: 'v1', auth: oAuth2Client });
         const res = await people.people.get({
           resourceName: 'people/me',
@@ -83,12 +106,27 @@ console.log(code);
             data:jwttoken,
           };
 
-    
-
 }
 catch(err){
     console.log(err);
 }
+},
+googleaccounts:async function(req){
+    try{
+    const updatedlinkedaccount= await accountModel.findOneAndUpdate({ createdBy: req.user._id },
+        { $set: {
+            type:"youtube"
+        } },
+          { new: true });
+          console.log(updatedlinkedaccount);
+          return {
+            status: true, code: 200, msg: "google account ;linked", data:updatedlinkedaccount
+          };
+
+    }
+    catch(err){
+        console.log(err);
+    }
 },
 
   //GENERATING STREAM KEY

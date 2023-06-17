@@ -16,10 +16,10 @@ module.exports = {
     generatetwitchtoken: async function(req, res) {
       try {
         const result = await twitchService.generatetwitchtoken(req);
-        const tokens=result.data;
-        res.cookie('access_token', tokens.access_token, {
+        const token=result.data;
+        res.cookie('twitch_token', token, {
             maxAge: 86400000, // Expiry time in milliseconds (e.g., 24 hours)
-            httpOnly: true, // Cookie is accessible only via HTTP(S), not JavaScript
+           // httpOnly: true, // Cookie is accessible only via HTTP(S), not JavaScript
         
           });
         
