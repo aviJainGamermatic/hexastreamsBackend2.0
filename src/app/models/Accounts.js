@@ -23,7 +23,7 @@ type: {
   },
   title: {
     type: String,
-    required: true
+    
   }
 });
 
