@@ -161,9 +161,17 @@ googleaccounts:async function(req){
      let rtmpUrl = res.data.cdn.ingestionInfo.ingestionAddress;
 
      // updating stream key
-     const updatedLivestream= await liveStreamModel.findOneAndUpdate({ createdBy: req.user._id },
-        { $set: {streamKey:streamKey} },
-          { new: true });
+     const newLiveStream = new liveStreamModel({
+        createdBy:req.user.userId,
+        streamKey:streamKey
+      });
+     let updatedLiveStream= await newLiveStream.save();
+
+     //const updatedLivestream= await liveStreamModel.findOneAndUpdate({ createdBy: req.user._id },
+       // { $set: {streamKey:streamKey} },
+         // { new: true });
+  
+    console.log(updatedLiveStream);
   
 return {
         status: true, code: 200, msg: "stream key generated", data: streamKey,
