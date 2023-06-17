@@ -112,15 +112,23 @@ catch(err){
 }
 },
 googleaccounts:async function(req){
-    try{
-    const updatedlinkedaccount= await accountModel.findOneAndUpdate({ createdBy: req.user._id },
-        { $set: {
-            type:"youtube"
-        } },
-          { new: true });
-          console.log(updatedlinkedaccount);
+ try{
+        console.log("check2");
+        console.log(req.user.userId);
+    //const updatedlinkedaccount= await accountModel.findOneAndUpdate({ createdBy: req.user.userId },
+      //  { $set: {
+        //    type:"youtube"
+       // } },
+         // { new: true });
+         const newAccount = new accountModel({
+            userId:req.user.userId,
+            type:"youtube",
+          });
+         let updatedLinkedAccount= await newAccount.save();
+
+          console.log(updatedLinkedAccount);
           return {
-            status: true, code: 200, msg: "google account ;linked", data:updatedlinkedaccount
+            status: true, code: 200, msg: "google account ;linked", data:updatedLinkedAccount
           };
 
     }
