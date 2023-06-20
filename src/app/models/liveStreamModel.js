@@ -9,6 +9,10 @@ const liveStreamSchema = new mongoose.Schema({
         type:ObjectId,
         ref:"user"
     },
+    linkedaccount:{
+        type:ObjectId,
+        ref:"Account",
+    },
     gameListId: {
         type:ObjectId,
         ref:"gameList"
