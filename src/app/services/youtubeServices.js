@@ -6,6 +6,8 @@ const liveStreamModel = require("../models/liveStreamModel");
 const accountModel=require("../models/Accounts");
 const userModel = require("../models/userModel");
 const jwt = require("jsonwebtoken");
+const passport =require ("passport");
+//const passport-setup = require("../middleware/passport-setup");
 
 // client-id, client secret and redirect uri
 const CLIENT_ID = "780976620194-ch6l1b0ss0aajl56p6i0n938mu6hq7jh.apps.googleusercontent.com";
@@ -16,6 +18,7 @@ const REDIRECT_URI =  "http://localhost:3000/auth/callback";
 const oAuth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
 module.exports={
+   
     // GENERATE AUTH URL
     generateAuthUrl: async function(req){
         try{
@@ -40,21 +43,62 @@ module.exports={
      
 
     //GENERATING TOKEN AT REDIRECT URI
-generatetoken: async function(code){
+generatetoken: async function(req){
     try{
-    
-console.log(code);
+    let code=req.query.code;
         const {tokens} = await oAuth2Client.getToken(code); 
         let accessToken=tokens.access_token;     
             console.log({tokens});
         oAuth2Client.setCredentials(tokens);
 
-         return {
-            status: true,
-            code: 200,
-            msg: "User authorised",
-            data:accessToken,
-          };
+        const people = google.people({ version: 'v1', auth: oAuth2Client });
+        const res = await people.people.get({
+          resourceName: 'people/me',
+          personFields: 'names,emailAddresses',
+        });
+
+        let email=res.data.emailAddresses[0].value;
+       let id=null;
+        const linkedaccount = await accountModel.findOne({ authID: email });
+        if (linkedaccount) {
+            console.log("account already exists");
+              const updatedLinkedAccount= await accountModel.findOneAndUpdate({ authID: email },
+           { $set: {
+                token:accessToken
+            } },
+              { new: true });
+              id=updatedLinkedAccount._id;
+              console.log(updatedLinkedAccount);
+          }
+          else{
+             const newAccount = new accountModel({
+                //userId:req.user.userId,
+                type:"youtube",
+                authID:email,
+                token:accessToken,
+              });
+             let updatedLinkedAccount= await newAccount.save();
+             id=updatedLinkedAccount._id;
+            }
+    
+             // console.log(updatedLinkedAccount);
+              return {
+                status: true, code: 200, msg: "google account ;linked", data:{
+                    email:email,
+                    token:accessToken,
+                    id:id,
+                }
+              };
+
+
+
+
+       //  return {
+         //   status: true,
+           // code: 200,
+            //msg: "User authorised",
+            //data:accessToken,
+          //};
 
 }
 catch(err){
@@ -64,20 +108,21 @@ catch(err){
 
 
 //GOOGLE AUTH
-googleauth: async function(code){
+googleauth: async function(req){
     try{
     
 
         //getting personal info
-        const people = google.people({ version: 'v1', auth: oAuth2Client });
-        const res = await people.people.get({
-          resourceName: 'people/me',
-          personFields: 'names,emailAddresses',
-        });
+       // const people = google.people({ version: 'v1', auth: oAuth2Client });
+        //const res = await people.people.get({
+          //resourceName: 'people/me',
+          //personFields: 'names,emailAddresses',
+        //});
         
         let jwttoken=null;
-        const name = res.data.names[0].displayName;
-        const email = res.data.emailAddresses[0].value;
+        const name = req.user.displayName
+        const email = req.user.emails[0].value;
+       // const email = res.data.emailAddresses[0].value;
         
         // Do something with the name and email
         console.log('Name:', name);
@@ -112,8 +157,8 @@ catch(err){
 }
 },
 googleaccounts:async function(req){
- try{
-        console.log("check2");
+    try{
+    
         console.log(req.user.userId);
     //const updatedlinkedaccount= await accountModel.findOneAndUpdate({ createdBy: req.user.userId },
       //  { $set: {
@@ -139,10 +184,9 @@ googleaccounts:async function(req){
 
   //GENERATING STREAM KEY
     generateStreamkey:async function (req){
+        let id=req.id;
         try{
-         ////   const cookieValue = req.cookies.acess_token;
-//console.log(cookieValue);
-  //oAuth2Client.setCredentials(cookieValue);
+         
         const youtube = google.youtube({version: 'v3', auth: oAuth2Client});
         const res = await youtube.liveStreams.insert({
           part: ['snippet,cdn'],
@@ -161,18 +205,30 @@ googleaccounts:async function(req){
      let rtmpUrl = res.data.cdn.ingestionInfo.ingestionAddress;
 
      // updating stream key
-     const newLiveStream = new liveStreamModel({
-        createdBy:req.user.userId,
-        streamKey:streamKey
-      });
-     let updatedLiveStream= await newLiveStream.save();
+     const liveStream = await liveStreamModel.findOne({ linkedaccount:id, });
+     if (liveStream) {
+         console.log("account already exists");
+           const updatedLinkedAccount= await liveStreamModel.findOneAndUpdate({ linkedaccount:id, },
+        { $set: {
+            streamKey:streamKey
+         } },
+           { new: true });
+           
+           console.log(updatedLinkedAccount);
+       }
+       else{
+        const newLiveStream = new liveStreamModel({
+            linkedaccount:id,
+            streamKey:streamKey
+          });
+         let updatedLiveStream= await newLiveStream.save();
+         console.log(updatedLiveStream);
+         }
+     
+     
 
-     //const updatedLivestream= await liveStreamModel.findOneAndUpdate({ createdBy: req.user._id },
-       // { $set: {streamKey:streamKey} },
-         // { new: true });
   
-    console.log(updatedLiveStream);
-  
+   
 return {
         status: true, code: 200, msg: "stream key generated", data: streamKey,
       };}
