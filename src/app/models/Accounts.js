@@ -7,8 +7,12 @@ const AccountSchema = new mongoose.Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    
   }, 
+  liveStreamId:{
+    type: Schema.Types.ObjectId,
+    ref: 'liveStream',
+  },
 type: {
     type: String,
     required: true
