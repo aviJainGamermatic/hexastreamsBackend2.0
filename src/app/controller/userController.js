@@ -1,3 +1,4 @@
+const { get } = require('mongoose');
 const userService = require('../services/userService');
 
 module.exports = {
@@ -42,45 +43,22 @@ module.exports = {
     }
   },
   Update: async function(req) {
-    try {
-      const { userId, email, phoneNumber, organization, userType, name, password } = req.body;
-  
-      const existingUser = await userModel.findById(userId);
-      if (!existingUser) {
-        return {
-          status: false,
-          code: 404,
-          msg: 'User not found',
-        };
+      try {
+        const result = await userService.updateUser(req);
+        if (result.status) return res.json({success: true, data: result.data});
+        else return res.json({success: false, data: result});
+      } catch (error) {
+        return res.json({success: false, data: error});
       }
-  
-      // existingUser.email = email || existingUser.email;
-      existingUser.phoneNumber = phoneNumber || existingUser.phoneNumber;
-      // existingUser.organization = organization || existingUser.organization;
-      // existingUser.userType = userType || existingUser.userType;
-      // existingUser.password = password || existingUser.password;
-      existingUser.name = name || existingUser.name
-  
-      await existingUser.save();
-  
-      return {
-        status: true,
-        code: 200,
-        msg: 'User information updated successfully',
-        data: existingUser,
-      };
-    } catch (error) {
-      console.error(error);
-      return {
-        status: false,
-        code: 500,
-        msg: 'Internal server error',
-      };
-    }
   },
   getProfileData: async function(req){
     try {
       const getProfileData = await userService.getProfileData(req)
+      if(getProfileData.status){
+        return res.json({success: true, data: getProfileData.data});
+      }else{
+        return res.json({success: false, msg: "error"});
+      }
     } catch (error) {
       return res.json({success: false, data: error});
     }

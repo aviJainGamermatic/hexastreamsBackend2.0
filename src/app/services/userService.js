@@ -145,11 +145,46 @@ module.exports = {
       const {email} = req.body;
       const userData = await userModel.findOne({email:email},'name userType phoneNumber email')
       if(userData){
-        return {status:true, data: userData}
+        return {status:true,   code: 200, data: userData}
       }
-      
+
     } catch (error) {
       return { status: false, code: 500, msg: `${error.message}` };
+    }
+  },
+  updateUser : async function(req){
+    try{
+      const { userId, email, phoneNumber, organization, userType, name, password } = req.body;
+
+  
+      let existingUser = await userModel.findById(userId);
+
+      if (!existingUser) {
+        return {
+          status: false,
+          code: 404,
+          msg: 'User not found',
+        };
+      }
+  
+      //existingUser.email = email || existingUser.email;
+      existingUser.phoneNumber = phoneNumber || existingUser.phoneNumber;
+      // existingUser.organization = organization || existingUser.organization;
+      // existingUser.userType = userType || existingUser.userType;
+      // existingUser.password = password || existingUser.password;
+      existingUser.name = name || existingUser.name
+  
+      await existingUser.save();
+  
+      return {
+        status: true,
+        code: 200,
+        msg: 'User information updated successfully',
+        data: existingUser,
+      };
+    }catch(err){
+      return {status:false, msg: `${error.message}`}
+
     }
   }
   
