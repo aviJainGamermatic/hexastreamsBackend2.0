@@ -42,23 +42,18 @@ module.exports = {
       return res.json({success: false, data: error});
     }
   },
-  Update: async function(req) {
+  Update: async function(req, res) {
       try {
-        const result = await userService.updateUser(req);
-        if (result.status) return res.json({success: true, data: result.data});
-        else return res.json({success: false, data: result});
+        const result = await userService.updateUser(req, res);
+        return result
       } catch (error) {
         return res.json({success: false, data: error});
       }
   },
-  getProfileData: async function(req){
+  getProfileData: async function(req, res){
     try {
-      const getProfileData = await userService.getProfileData(req)
-      if(getProfileData.status){
-        return res.json({success: true, data: getProfileData.data});
-      }else{
-        return res.json({success: false, msg: "error"});
-      }
+      const getProfileData = await userService.getProfileData(req,res)
+      return getProfileData
     } catch (error) {
       return res.json({success: false, data: error});
     }
