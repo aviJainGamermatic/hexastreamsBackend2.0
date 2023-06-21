@@ -117,7 +117,7 @@ module.exports = {
         (await bcrypt.compare(password, registeredDetails.password))
       ) {
         const updateUser = await userModel.findOneAndUpdate(
-          { email: email },
+          { email: email },   
           {
             active: true,
             lastActive: new Date(),
@@ -140,4 +140,17 @@ module.exports = {
       return { status: false, code: 500, msg: `${error.message}` };
     }
   },
+  getProfileData: async function(req){
+    try {
+      const {email} = req.body;
+      const userData = await userModel.findOne({email:email},'name userType phoneNumber email')
+      if(userData){
+        return {status:true, data: userData}
+      }
+      
+    } catch (error) {
+      return { status: false, code: 500, msg: `${error.message}` };
+    }
+  }
+  
 };

@@ -43,7 +43,7 @@ module.exports = {
   },
   Update: async function(req) {
     try {
-      const { userId, email, phoneNumber, organization, userType } = req.body;
+      const { userId, email, phoneNumber, organization, userType, name, password } = req.body;
   
       const existingUser = await userModel.findById(userId);
       if (!existingUser) {
@@ -54,10 +54,12 @@ module.exports = {
         };
       }
   
-      existingUser.email = email || existingUser.email;
+      // existingUser.email = email || existingUser.email;
       existingUser.phoneNumber = phoneNumber || existingUser.phoneNumber;
-      existingUser.organization = organization || existingUser.organization;
-      existingUser.userType = userType || existingUser.userType;
+      // existingUser.organization = organization || existingUser.organization;
+      // existingUser.userType = userType || existingUser.userType;
+      // existingUser.password = password || existingUser.password;
+      existingUser.name = name || existingUser.name
   
       await existingUser.save();
   
@@ -76,4 +78,11 @@ module.exports = {
       };
     }
   },
+  getProfileData: async function(req){
+    try {
+      const getProfileData = await userService.getProfileData(req)
+    } catch (error) {
+      return res.json({success: false, data: error});
+    }
+  }
 };
