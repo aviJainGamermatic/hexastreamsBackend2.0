@@ -123,7 +123,7 @@ verifyOrder: async (req)=>{
       response={"signatureIsValid":"true"}
       console.log("successful)");
      }
-     const updatedUser= await userModel.findOneAndUpdate({ createdBy: req.user._id },
+     const updatedUser= await userModel.findOneAndUpdate({ createdBy: req.user.userId },
         { $set: {isPaid:true,PlanId:req.plan_id} },
           { new: true });
           return {
