@@ -14,7 +14,7 @@ router.get('/google',passport.authenticate('google',{scope:['profile','email']})
 router.get('/generateUrl',youtubeController. signUpwithGoogle);
 
 //to authenitcate google
-router.get('/auth/callback', passport.authenticate('google', { failureRedirect: '/google' }), (req, res) => {
+router.get('/auth/callback2', passport.authenticate('google', { failureRedirect: '/google' }), (req, res) => {
     // Redirect to the desired page after successful authentication
     res.redirect('/google-auth');
   });
@@ -24,7 +24,7 @@ router.get('/auth/callback', passport.authenticate('google', { failureRedirect: 
   router.get("/google-auth",youtubeController.googleauth);
 
 //redirect url and creating linked account
-router.get("/auth/callback2",youtubeController.redirectUri);
+router.get("/auth/callback",youtubeController.redirectUri);
 
 
 //lonking google account
