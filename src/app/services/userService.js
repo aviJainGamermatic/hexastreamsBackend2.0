@@ -142,7 +142,7 @@ module.exports = {
   },
   getProfileData: async function(req){
     try {
-      const {email} = req.body;
+      const {email} = req.query;
       const userData = await userModel.findOne({email:email},'name userType phoneNumber email')
       if(userData){
         return {status:true,   code: 200, data: userData}
