@@ -90,7 +90,7 @@ module.exports = {
           playbackId: "",
         });
 
-        return { status: true, data: saveMuxData };
+        return { status: true, data: saveMuxData, antMediaData:muxData.data  };
       }
     } catch (error) {
       console.log(error.response.data)
