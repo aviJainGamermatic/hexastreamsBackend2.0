@@ -185,8 +185,15 @@ googleaccounts:async function(req){
   //GENERATING STREAM KEY
     generateStreamkey:async function (req){
         let id=req.id;
+       let name=req.name;
         try{
-         
+          const updatedLinkedAccount= await accountModel.findOneAndUpdate({ authID: email },
+                { $set: {
+                     title:name,
+                 } },
+                   { new: true });
+                   
+                   console.log(updatedLinkedAccount);
         const youtube = google.youtube({version: 'v3', auth: oAuth2Client});
         const res = await youtube.liveStreams.insert({
           part: ['snippet,cdn'],
