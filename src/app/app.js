@@ -2,7 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const passport= require ('passport');
 const session = require('express-session');
-const port = 5001;
+const port = 5000;
 const cors = require('cors');
 const dbConfig = require('./dbConfig');
 require('dotenv').config();
