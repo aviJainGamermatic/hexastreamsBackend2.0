@@ -165,16 +165,18 @@ module.exports = {
     },
     updateUser: async function (req, res) {
       try {
-        const { userId, phoneNumber, name } = req.body;
+        const { userId} = req.query;
+        const  {phoneNumber, name } = req.body;
   
-        let existingUser = await userModel.findById(userId);
-  
+        let existingUser = await userModel.findById(ObjectId(userId));
+        console.log('existingUser', existingUser)
         if (!existingUser) {
           return res.status(404).json({
             status: false,
             msg: 'User not found',
           });
         }
+        
   
         existingUser.phoneNumber = phoneNumber || existingUser.phoneNumber;
         existingUser.name = name || existingUser.name;
