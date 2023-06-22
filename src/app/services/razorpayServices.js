@@ -124,7 +124,7 @@ verifyOrder: async (req)=>{
       console.log("successful)");
      }
      const updatedUser= await userModel.findOneAndUpdate({ createdBy: req.user.userId },
-        { $set: {isPaid:true,PlanId:req.plan_id} },
+        { $set: {isPaid:true,PlanId:req.body.plan_id} },
           { new: true });
           return {
             status: true, code: 200, msg: "payment verified", data: updatedUser,
