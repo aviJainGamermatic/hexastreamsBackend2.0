@@ -110,8 +110,6 @@ createOrder:(req)=>{
     },
 verifyOrder: async (req)=>{
     try{
-    
-
     let body=req.body.razorpay_order_id + "|" + req.body.razorpay_payment_id;
    
      var crypto = require("crypto");
@@ -122,13 +120,17 @@ verifyOrder: async (req)=>{
      if(expectedSignature === req.body.razorpay_signature){
       response={"signatureIsValid":"true"}
       console.log("successful)");
-     }
+     
      const updatedUser= await userModel.findOneAndUpdate({ createdBy: req.user.userId },
         { $set: {isPaid:true,PlanId:req.body.plan_id} },
           { new: true });
+     }
+     
           return {
-            status: true, code: 200, msg: "payment verified", data: updatedUser,
+            status: true, code: 200, msg: "payment verified", data: response,
           };
+
+  
         }
         catch(err){
             console.log(err);
