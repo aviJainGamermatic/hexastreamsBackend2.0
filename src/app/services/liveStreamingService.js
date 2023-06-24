@@ -308,7 +308,7 @@ module.exports = {
   stopLiveStreaming: async function (req, res) {
     try {
       console.log('inside live streaming');
-      const liveStreamId = req.body.muxStreamingId;
+      const liveStreamId = req.body.liveStreamId;
       const socialMediaStream = req.body.muxSimulcastId;
       console.log('live stream', liveStreamId, 'live stream 00', socialMediaStream);
       let config = {
