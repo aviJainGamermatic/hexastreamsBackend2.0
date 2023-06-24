@@ -2,7 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const passport= require ('passport');
 const session = require('express-session');
-const port = 5000;
+const port = 5001;
 const cors = require('cors');
 const dbConfig = require('./dbConfig');
 require('dotenv').config();
@@ -33,9 +33,9 @@ dbConfig.dbConnect();
 app.listen(port, () => {
   console.log(`GamerMatic app listening on port ${port}`);
 });
-app.get("/api", (req, res) => {
+app.get("/", (req, res) => {
 
-  res.send("Welcome to gamermatic backed Service!!");
+  res.send("Welcome to gamermatic backend Service!!");
 });
 
 
