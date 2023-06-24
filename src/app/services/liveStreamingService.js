@@ -313,15 +313,11 @@ module.exports = {
       console.log('live stream', liveStreamId, 'live stream 00', socialMediaStream);
       let config = {
         method: "DELETE",
-        url: `https://api.mux.com/video/v1/live-streams/${liveStreamId}/simulcast-targets/${socialMediaStream}`,
+        url: `${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamId}`,
         headers: {
           "Content-Type": "application/json",
-          Authorization:
-            "Basic " +
-            Buffer.from(
-              `${process.env.MUX_TOKEN_ID}:${process.env.MUX_TOKEN_SECRET}`
-            ).toString("base64"),
-        },
+          Authorization:`${process.env.ANT_MEDIA_AUTH}`
+        }
       };
       console.log('config', config);
       const streamData = await axios(config);
