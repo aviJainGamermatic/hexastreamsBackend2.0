@@ -75,9 +75,16 @@ getCoupons : async function(req, res)  {
 createOrder:async function(req,res){
     
     try {
-        const result =  await razorpayService.createOrder(req);
-         return res.json({success: true, msg: result.msg,data:result.data});
-        
+      var options = {
+            amount: req.body.id*100*(1-(req.body.discount/100)),  // amount in the smallest currency unit
+            currency: "INR",
+            receipt: "order_rcptid_11"
+          };
+          instance.orders.create(options, function(err, order) {
+              if(err) console.log(err);
+            console.log(order);
+            return res.send({data:order});
+          });
       } catch (error) {
         return res.json({success: false, data: error});
       }
