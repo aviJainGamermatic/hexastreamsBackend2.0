@@ -322,26 +322,7 @@ module.exports = {
       console.log('config', config);
       const streamData = await axios(config);
       console.log(streamData);
-      if (streamData.code === 204) {
-        const updateSocialMedia = await socialMediaStreamingModel.findOne(
-          { liveStreamId: muxStreamingId, muxSimulcastId: socialMediaStream },
-          { $set: { isDeleted: true } },{new:true}
-        );
-        const deleteLiveStreamSimulcastId =
-          await liveStreamModel.findOneAndUpdate(
-            {
-              muxStreamingId: liveStreamId,
-            },
-            { $pull: { socialMediaIds: ObjectId(updateSocialMedia._id) } },
-            { new: true }
-          );
-        return { status: true, msg: "Deleted Live Stream Succeffully" };
-      } else {
-        return {
-          status: false,
-          msg: "Error encountered while deleting live stream",
-        };
-      }
+      return { status: true, msg: "Deleted Live Stream Succeffully" , data:streamData };
     } catch (error) {
       return { status: false, code: 500, msg: `${error.message}` };
     }
