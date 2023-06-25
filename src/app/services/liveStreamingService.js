@@ -345,11 +345,12 @@ module.exports = {
           Authorization: process.env.ANT_MEDIA_AUTH,
         },
       });
+      console.log(removeSimulcast.data)
      if(removeSimulcast.data.success){
       const deleteSimulcast = await socialMediaStreamingModel.findOneAndUpdate({url:socialMediaUrl}, {$set:{isDeleted:true}}, {new:true})
       const deleteLiveStreamEntry = await liveStreamModel.findOneAndUpdate({streamKey:liveStreamId}, { $pull: { socialMediaIds: deleteSimulcast._id } })
-      return { status: true, msg: 'Deleted Live Stream Successfully'  };
-     }
+      return { status: true, msg: 'Deleted Live Stream Successfully' , data: 'Deleted Live Stream Successfully'  };
+     }else {return {status: false, msg: "Already deleted"}}
       
     } catch (error) {
       console.error('Error:', error);
