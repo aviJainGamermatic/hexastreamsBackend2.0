@@ -20,9 +20,6 @@ const liveStreamSchema = new mongoose.Schema({
     status: {
         type:String,
     },
-    muxStreamingId:{
-        type:String
-    },
     startTime:{
         type:Number
     },
@@ -30,6 +27,9 @@ const liveStreamSchema = new mongoose.Schema({
         type:Number
     },
     socialMediaIds:[{ type : ObjectId, ref: 'socialMediaStream' }],
-    playbackId:{type:String}
+    isDeleted:{
+        type:Boolean,
+        default:false
+    }
 },{timestamps:true})
 module.exports = mongoose.model('liveStream', liveStreamSchema);

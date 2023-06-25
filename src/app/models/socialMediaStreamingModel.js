@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const socialMediaStreamingSchema = new mongoose.Schema(
   {
-    liveStreamId: {
+    liveStreamModelId: {
       type: ObjectId,
       ref: "liveStream",
     },
@@ -11,13 +11,12 @@ const socialMediaStreamingSchema = new mongoose.Schema(
       type: String,
       enum: ["youtube", "twitch", "facebook"],
     },
-    muxSimulcastId: {
+    antMediaId: {
       type: String,
     },
     url: { type: String },
     streamKey: { type: String },
     status: { type: String },
-    passthrough: { type: String },
     isDeleted: { type: Boolean, default: false },
     createdBy:{
         type:ObjectId,

@@ -69,6 +69,7 @@ module.exports = {
   createLiveStream: async function (req) {
     console.log('inside create live stream', req.body);
     try {
+      console.log('ccc xxxx ccxx');
       let config = {
         method: "POST",
         url: `${process.env.ANT_MEDIA_URL}broadcasts/create`,
@@ -79,8 +80,7 @@ module.exports = {
         data: req.body,
       };
       const muxData = await axios(config);
-      console.log("mux mux mux", muxData.data);
-      if (muxData) {
+      if (muxData.status == 200) {
         const saveMuxData = await liveStreamModel.create({
           streamKey: muxData.data.streamId,
           createdBy: req.user.userId,
@@ -97,234 +97,239 @@ module.exports = {
       return { status: false, code: 500, msg: `${error.message}` };
     }
   },
-  restreamToYoutube: async function (req) {
-    const liveStreamId = req.body.liveStreamId;
-
-    const youtube = req.body.youtube;
+  restreamToYoutube : async function (req)  {
     try {
-      let configForAnt = {
-
+      const { liveStreamId, youtube } = req.body;
+      const livestreamData = await liveStreamModel.findOne({ streamKey: liveStreamId });
+      
+      console.log('livestreamData', livestreamData);
+      
+      if (livestreamData) {
+        const configForAnt = {
           method: "POST",
           url: `${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamId}/rtmp-endpoint`,
           headers: {
             "Content-Type": "application/json",
-            Authorization:`${process.env.ANT_MEDIA_AUTH}`
+            Authorization: process.env.ANT_MEDIA_AUTH,
           },
           data: {
-            "rtmpUrl":youtube.url
+            rtmpUrl: youtube.url,
           },
-      }
-      // let config = {
-      //   method: "POST",
-      //   url: `${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamId}`,
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization:
-      //       "Basic " +
-      //       Buffer.from(
-      //         `${process.env.MUX_TOKEN_ID}:${process.env.MUX_TOKEN_SECRET}`
-      //       ).toString("base64"),
-      //   },
-      //   data: {
-      //     url: youtube.url,
-      //     stream_key: youtube.streamKey,
-      //     passthrough: youtube.passthrough,
-      //   },
-      // };
-      const streamData = await axios(configForAnt);
-      if (streamData) {
-        let livestreamData = await liveStreamModel.findOne({
-          muxStreamingId: liveStreamId,
-        });
-        const simulcastData = await socialMediaStreamingModel.create({
-          liveStreamId: ObjectId(livestreamData._id),
-          platformName: "youtube",
-          muxSimulcastId: "",
-          url: youtube.url,
-          streamKey: youtube.streamKey,
-          status: "",
-          passthrough: youtube && youtube.passthrough ?  youtube.passthrough : '',
-          createdBy: req.user.userId,
-        });
-        livestreamData.socialMediaIds.push(simulcastData._id);
-        const saved = await livestreamData.save();
-        return { status: true, data: streamData.data.data };
-      } else {
-        return {
-          status: false,
-          msg: "Error encountered while streaming in youtube",
         };
-      }
-    } catch (error) {
-      return { status: false, code: 500, msg: `${error.message}` };
-    }
-  },
-  restreamToTwitch: async function (req) {
-    const liveStreamId = req.body.liveStreamId;
-    const twitch = req.body.twitch;
-    try {
-      let configForAnt = {
-
-        method: "POST",
-        url: `${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamId}/rtmp-endpoint`,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization:`${process.env.ANT_MEDIA_AUTH}`
-        },
-        data: {
-          "rtmpUrl":twitch.url
-        },
-    }
-      // config = {
-      //   method: "POST",
-      //   url: `https://api.mux.com/video/v1/live-streams/${liveStreamId}/simulcast-targets`,
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization:
-      //       "Basic " +
-      //       Buffer.from(
-      //         `${process.env.MUX_TOKEN_ID}:${process.env.MUX_TOKEN_SECRET}`
-      //       ).toString("base64"),
-      //   },
-      //   data: {
-      //     url: twitch.url,
-      //     stream_key: twitch.streamKey,
-      //     passthrough: twitch.passthrough,
-      //   },
-      // };
-      const streamData = await axios(configForAnt);
-      if (streamData) {
-        let livestreamData = await liveStreamModel.findOne({
-          muxStreamingId: liveStreamId,
-        });
-        // const simulcastData = await socialMediaStreamingModel.create({
-        //   liveStreamId: ObjectId(livestreamData._id),
-        //   platformName: "twitch",
-        //   muxSimulcastId: streamData.data.data.id,
-        //   url: streamData.data.data.url,
-        //   streamKey: streamData.data.data.streamKey,
-        //   status: streamData.data.data.status,
-        //   passthrough: streamData.data.data.passthrough,
-        //   createdBy: req.user.userId,
-        // });
-        // livestreamData.socialMediaIds.push(simulcastData._id);
-        // const saved = await livestreamData.save();
-        // return { status: true, data: streamData.data.data };
-        const simulcastData = await socialMediaStreamingModel.create({
-          liveStreamId: ObjectId(livestreamData._id),
-          platformName: "twitch",
-          muxSimulcastId: "",
-          url: twitch.url,
-          streamKey: twitch.streamKey,
-          status: "",
-          passthrough: twitch && twitch.passthrough ?  twitch.passthrough : '',
-          createdBy: req.user.userId,
-        });
-        livestreamData.socialMediaIds.push(simulcastData._id);
-        const saved = await livestreamData.save();
-        return { status: true, data: streamData.data.data };
-      } else {
-        return {
-          status: false,
-          msg: "Error encountered while streaming in Twitch",
-        };
-      }
-    } catch (error) {
-      return { status: false, code: 500, msg: `${error.message}` };
-    }
-  },
-  restreamToFacebook: async function (req) {
-    const liveStreamId = req.body.liveStreamId;
-    const facebook = req.body.facebook;
-    try {
-      // config = {
-      //   method: "POST",
-      //   url: `https://api.mux.com/video/v1/live-streams/${liveStreamId}/simulcast-targets`,
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization:
-      //       "Basic " +
-      //       Buffer.from(
-      //         `${process.env.MUX_TOKEN_ID}:${process.env.MUX_TOKEN_SECRET}`
-      //       ).toString("base64"),
-      //   },
-      //   data: {
-      //     url: facebook.url,
-      //     stream_key: facebook.streamKey,
-      //     passthrough: facebook.passthrough,
-      //   },
-      // };
-      let configForAnt = {
-
-        method: "POST",
-        url: `${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamId}/rtmp-endpoint`,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization:`${process.env.ANT_MEDIA_AUTH}`
-        },
-        data: {
-          "rtmpUrl":facebook.url
-        },
-    }
-      const streamData = await axios(configForAnt);
-      if (streamData) {
-        let livestreamData = await liveStreamModel.findOne({
-          muxStreamingId: liveStreamId,
-        });
-        // const simulcastData = await socialMediaStreamingModel.create({
-        //   liveStreamId: ObjectId(livestreamData._id),
-        //   platformName: "facebook",
-        //   muxSimulcastId: streamData.data.data.id,
-        //   url: streamData.data.data.url,
-        //   streamKey: streamData.data.data.streamKey,
-        //   status: streamData.data.data.status,
-        //   passthrough: streamData.data.data.passthrough,
-        //   createdBy: req.user.userId,
-        // });
-        const simulcastData = await socialMediaStreamingModel.create({
-          liveStreamId: ObjectId(livestreamData._id),
-          platformName: "facebook",
-          muxSimulcastId: "",
-          url: facebook.url,
-          streamKey: facebook.streamKey,
-          status: "",
-          passthrough: facebook && facebook.passthrough ?  facebook.passthrough : '',
-          createdBy: req.user.userId,
-        });
-
-        livestreamData.socialMediaIds.push(simulcastData._id);
-        const saved = await livestreamData.save();
-        return { status: true, data: streamData.data.data };
-      } else {
-        return {
-          status: false,
-          msg: "Error encountered while streaming in Twitch",
-        };
-      }
-    } catch (error) {
-      return { status: false, code: 500, msg: `${error.message}` };
-    }
-  },
-  stopLiveStreaming: async function (req, res) {
-    try {
-      console.log('inside live streaming');
-      const liveStreamId = req.body.liveStreamId;
-      const socialMediaStream = req.body.muxSimulcastId;
-      console.log('live stream', liveStreamId, 'live stream 00', socialMediaStream);
-      let config = {
-        method: "DELETE",
-        url: `${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamId}`,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization:`${process.env.ANT_MEDIA_AUTH}`
+        
+        const streamData = await axios(configForAnt);
+        console.log('liveStream data youtube', streamData.data);
+        
+        if (streamData.data.success) {
+          const simulcastData = await socialMediaStreamingModel.create({
+            liveStreamModelId: livestreamData._id,
+            platformName: "youtube",
+            muxSimulcastId: "",
+            url: youtube.url,
+            streamKey: youtube.streamKey,
+            status: "",
+            passthrough: youtube && youtube.passthrough ?  youtube.passthrough : '',
+            createdBy: req.user.userId,
+          });
+          
+          console.log('simulcastData saved', simulcastData);
+          
+          livestreamData.socialMediaIds.push(simulcastData._id);
+          await livestreamData.save();
+          
+          const findWithPopulatedLiveStreamData = await liveStreamModel
+            .findOne({ streamKey: liveStreamId })
+            .populate("socialMediaIds");
+          
+          console.log("findWithPopulatedLiveStreamData", findWithPopulatedLiveStreamData);
+          
+          return { status: true, data: findWithPopulatedLiveStreamData };
+        } else {
+          return {
+            status: false,
+            msg: streamData.data.message,
+          };
         }
-      };
-      console.log('config', config);
-      const streamData = await axios(config);
-      console.log(streamData);
-      return { status: true, msg: "Deleted Live Stream Succeffully" , data:streamData };
+      }
     } catch (error) {
-      return { status: false, code: 500, msg: `${error.message}` };
+      return { status: false, code: 500, msg: error.message };
+    }
+  },
+
+  restreamToTwitch : async function(req) {
+    try {
+      const { liveStreamId, twitch } = req.body;
+      const livestreamData = await liveStreamModel.findOne({ streamKey: liveStreamId });
+      
+      if (livestreamData) {
+        const configForAnt = {
+          method: "POST",
+          url: `${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamId}/rtmp-endpoint`,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: process.env.ANT_MEDIA_AUTH,
+          },
+          data: {
+            rtmpUrl: twitch.url,
+          },
+        };
+        
+        const streamData = await axios(configForAnt);
+        
+        if (streamData.data.success) {
+          const simulcastData = await socialMediaStreamingModel.create({
+            liveStreamModelId: livestreamData._id,
+            platformName: "twitch",
+            muxSimulcastId: "",
+            url: twitch.url,
+            streamKey: twitch.streamKey,
+            status: "",
+            passthrough: twitch && twitch.passthrough ?  twitch.passthrough : '',
+            createdBy: req.user.userId,
+          });
+          
+          console.log('simulcastData saved', simulcastData);
+          
+          livestreamData.socialMediaIds.push(simulcastData._id);
+          await livestreamData.save();
+          
+          const findWithPopulatedLiveStreamData = await liveStreamModel
+            .findOne({ streamKey: liveStreamId })
+            .populate("socialMediaIds");
+          
+          console.log("findWithPopulatedLiveStreamData", findWithPopulatedLiveStreamData);
+          
+          return { status: true, data: findWithPopulatedLiveStreamData };
+        } else {
+          return {
+            status: false,
+            msg: streamData.data.message,
+          };
+        }
+      }
+    } catch (error) {
+      return { status: false, code: 500, msg: error.message };
+    }
+  },
+  restreamToFacebook : async function(req) {
+    try {
+      const { liveStreamId, facebook } = req.body;
+      const livestreamData = await liveStreamModel.findOne({ streamKey: liveStreamId });
+      
+      if (livestreamData) {
+        const configForAnt = {
+          method: "POST",
+          url: `${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamId}/rtmp-endpoint`,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: process.env.ANT_MEDIA_AUTH,
+          },
+          data: {
+            rtmpUrl: facebook.url,
+          },
+        };
+        
+        const streamData = await axios(configForAnt);
+        
+        if (streamData.data.success) {
+          const simulcastData = await socialMediaStreamingModel.create({
+            liveStreamModelId: livestreamData._id,
+            platformName: "facebook",
+            muxSimulcastId: "",
+            url: facebook.url,
+            streamKey: facebook.streamKey,
+            status: "",
+            passthrough: facebook && facebook.passthrough ?  facebook.passthrough : '',
+            createdBy: req.user.userId,
+          });
+          
+          console.log('simulcastData saved', simulcastData);
+          
+          livestreamData.socialMediaIds.push(simulcastData._id);
+          await livestreamData.save();
+          
+          const findWithPopulatedLiveStreamData = await liveStreamModel
+            .findOne({ streamKey: liveStreamId })
+            .populate("socialMediaIds");
+          
+          console.log("findWithPopulatedLiveStreamData", findWithPopulatedLiveStreamData);
+          
+          return { status: true, data: findWithPopulatedLiveStreamData };
+        } else {
+          return {
+            status: false,
+            msg: streamData.data.message,
+          };
+        }
+      } 
+    } catch (error) {
+      return { status: false, code: 500, msg: error.message };
+    }
+  },
+    
+  stopLiveStreaming :async function (req){
+    try {
+      console.log('Inside live streaming');
+      const liveStreamId = req.body.liveStreamId;
+      let liveStreamingDataWithSimulcast = await liveStreamModel
+        .findOne({ streamKey: liveStreamId })
+        .populate('socialMediaIds');
+  
+      if (liveStreamingDataWithSimulcast) {
+        const config = {
+          method: 'DELETE',
+          url: `${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamId}`,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: process.env.ANT_MEDIA_AUTH,
+          },
+        };
+  
+        console.log('Config:', config);
+  
+        const streamData = await axios(config);
+  
+        if (streamData.data.success) {
+          const allSocialMediaHandles = liveStreamingDataWithSimulcast.socialMediaIds;
+  
+          for (let i = 0; i < allSocialMediaHandles.length; i++) {
+            const element = allSocialMediaHandles[i];
+  
+            // Delete each social media streaming
+            const removeSimulcast = await axios.delete(`${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamId}`, {
+              params: {
+                endpointServiceId: element.url,
+              },
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: process.env.ANT_MEDIA_AUTH,
+              },
+            });
+            console.log(removeSimulcast.data);
+
+            // update element 
+            const markAsDelete = await socialMediaStreamingModel.findOneAndUpdate(
+              { _id: element._id },
+              { $set: { isDeleted: true } }
+            );
+            console.log('removed and marked simulcast data as deleted',markAsDelete);
+            
+            const updateLiveStreamingModel = await liveStreamModel.findOneAndUpdate(
+              { streamKey: liveStreamId },
+              { $pull: { socialMediaIds: element._id } }
+            );
+            console.log('removed and marked updateLiveStreamingModel as deleted',updateLiveStreamingModel);
+            
+          }
+          liveStreamingDataWithSimulcast.isDeleted = true;
+          const updatedDelete = await liveStreamingDataWithSimulcast.save()
+          console.log(updatedDelete);
+          return { status: true, msg: 'Deleted Live Stream Successfully', data:updatedDelete  };
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      return { status: false, code: 500, msg: error.message };
     }
   },
   getLiveStreamById:async function(req, res){
