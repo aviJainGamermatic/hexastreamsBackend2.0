@@ -15,4 +15,5 @@ router.get("/live-stream-details",verify, liveStreamingController.getLiveStreami
 router.get("/live-stream-list-byUser", verify, liveStreamingController.getLiveStreaminListByUserId);
 router.get("/mark-live-stream-complete", verify, liveStreamingController.markLiveStreamComplete);
 router.get("/delete-All-LiveStream", verify, liveStreamingController.deleteAllLiveStreamOfUser);
+router.post("/delete-social-media", verify, liveStreamingController.deleteSocialMedaStream);
 module.exports=router;

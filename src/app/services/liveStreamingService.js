@@ -332,6 +332,30 @@ module.exports = {
       return { status: false, code: 500, msg: error.message };
     }
   },
+  deleteSocialMedaStream: async function(req){
+    try {
+      const liveStreamId = req.body.liveStreamId;
+      const socialMediaUrl = req.body.url;
+      const removeSimulcast = await axios.delete(`${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamId}`, {
+        params: {
+          endpointServiceId: socialMediaUrl,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: process.env.ANT_MEDIA_AUTH,
+        },
+      });
+     if(removeSimulcast.data.success){
+      const deleteSimulcast = await socialMediaStreamingModel.findOneAndUpdate({url:socialMediaUrl}, {$set:{isDeleted:true}}, {new:true})
+      const deleteLiveStreamEntry = await liveStreamModel.findOneAndUpdate({streamKey:liveStreamId}, { $pull: { socialMediaIds: deleteSimulcast._id } })
+      return { status: true, msg: 'Deleted Live Stream Successfully'  };
+     }
+      
+    } catch (error) {
+      console.error('Error:', error);
+      return { status: false, code: 500, msg: error.message };
+    }
+  },
   getLiveStreamById:async function(req, res){
     try {
       const liveStreamId = req.query.id;
