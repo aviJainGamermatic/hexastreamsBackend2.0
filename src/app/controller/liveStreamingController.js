@@ -115,7 +115,7 @@ module.exports = {
   },
   deleteSocialMedaStream: async function (req, res){
     try{
-      const result = await liveStreamingService.deleteLiveStream(req);
+      const result = await liveStreamingService.deleteSocialMedaStream(req);
       if (result.status) {
         return res.json({ success: true, data: result });
       } else return res.json({ success: false, msg: result.msg });
