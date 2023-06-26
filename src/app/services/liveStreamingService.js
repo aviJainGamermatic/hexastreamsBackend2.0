@@ -5,6 +5,7 @@ const { findOne } = require("../models/liveStreamModel");
 const liveStreamModel = require("../models/liveStreamModel");
 const socialMediaStreamingModel = require("../models/socialMediaStreamingModel");
 const { config } = require("dotenv");
+const { errorMonitor } = require("nodemailer/lib/xoauth2");
 
 module.exports = {
   verify: async function (req) {
@@ -266,16 +267,112 @@ module.exports = {
       return { status: false, code: 500, msg: error.message };
     }
   },
+  pauseLiveStreaming : async function (req){
+    try {
+      const liveStreamKey = req.body.liveStreamId;
+      const findDataSavedInDb = await liveStreamModel.findOne({ streamKey: liveStreamKey });
+  
+      if (findDataSavedInDb) {
+        // Pause the streaming
+        const configForAnt = {
+          method: "POST",
+          url: `${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamKey}/stop`,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: process.env.ANT_MEDIA_AUTH,
+          }
+        };
+  
+        const stopStreamResponse = await axios(configForAnt);
+        console.log('stop stream response', stopStreamResponse.data);
+
+        if (stopStreamResponse.data.success) {
+          findDataSavedInDb.status = "pause";
+          const updatedData = await findDataSavedInDb.save();
+          return { status: true, code: 200, msg: 'Successfully stopped streaming', data: updatedData };
+        } else {
+          return { status: false, code: 500, msg: "Error encountered while stopping stream" };
+        }
+      } else {
+        return { status: false, code: 404, msg: "Couldn't fetch live stream data!" };
+      }
+    } catch (error) {
+      return { status: false, code: 500, msg: error.message };
+    }
+  },
     
-  stopLiveStreaming :async function (req){
+  playLiveStreaming : async function (req){
+    try {
+      const liveStreamKey = req.body.liveStreamId;
+      const findDataSavedInDb = await liveStreamModel.findOne({ streamKey: liveStreamKey });
+  
+      if (findDataSavedInDb) {
+        // Pause the streaming
+        const configForAnt = {
+          method: "POST",
+          url: `${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamKey}/start`,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: process.env.ANT_MEDIA_AUTH,
+          }
+        };
+  
+        const startStreamResponse = await axios(configForAnt);
+        console.log('start stream response', startStreamResponse.data);
+        if (startStreamResponse.data.success) {
+          findDataSavedInDb.status = "playing";
+          const updatedData = await findDataSavedInDb.save();
+          return { status: true, code: 200, msg: 'Successfully stopped streaming', data: updatedData };
+        } else {
+          return { status: false, code: 500, msg: "Error encountered while stopping stream" };
+        }
+      } else {
+        return { status: false, code: 404, msg: "Couldn't fetch live stream data!" };
+      }
+    } catch (error) {
+      return { status: false, code: 500, msg: error.message };
+    }
+  },
+  stopAndDeleteLiveStreaming :async function (req){
     try {
       console.log('Inside live streaming');
       const liveStreamId = req.body.liveStreamId;
-      let liveStreamingDataWithSimulcast = await liveStreamModel
+      const liveStreamingDataWithSimulcast = await liveStreamModel
         .findOne({ streamKey: liveStreamId })
         .populate('socialMediaIds');
   
       if (liveStreamingDataWithSimulcast) {
+        const allSocialMediaHandles = liveStreamingDataWithSimulcast.socialMediaIds;
+  
+        for (let i = 0; i < allSocialMediaHandles.length; i++) {
+          const element = allSocialMediaHandles[i];
+  
+          // Delete each social media streaming
+          const removeSimulcast = await axios.delete(`${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamId}`, {
+            params: {
+              endpointServiceId: element.url,
+            },
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: process.env.ANT_MEDIA_AUTH,
+            },
+          });
+          console.log('removeSimulcast', removeSimulcast.data);
+  
+          // Update element
+          const markAsDelete = await socialMediaStreamingModel.findOneAndUpdate(
+            { _id: element._id },
+            { $set: { isDeleted: true } }
+          );
+          console.log('Removed and marked simulcast data as deleted', markAsDelete);
+  
+          const updateLiveStreamingModel = await liveStreamModel.findOneAndUpdate(
+            { streamKey: liveStreamId },
+            { $pull: { socialMediaIds: element._id } }
+          );
+          console.log('Removed and marked updateLiveStreamingModel as deleted', updateLiveStreamingModel);
+        }
+  
         const config = {
           method: 'DELETE',
           url: `${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamId}`,
@@ -288,44 +385,14 @@ module.exports = {
         console.log('Config:', config);
   
         const streamData = await axios(config);
-  
-        if (streamData.data.success) {
-          const allSocialMediaHandles = liveStreamingDataWithSimulcast.socialMediaIds;
-  
-          for (let i = 0; i < allSocialMediaHandles.length; i++) {
-            const element = allSocialMediaHandles[i];
-  
-            // Delete each social media streaming
-            const removeSimulcast = await axios.delete(`${process.env.ANT_MEDIA_URL}broadcasts/${liveStreamId}`, {
-              params: {
-                endpointServiceId: element.url,
-              },
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: process.env.ANT_MEDIA_AUTH,
-              },
-            });
-            console.log(removeSimulcast.data);
-
-            // update element 
-            const markAsDelete = await socialMediaStreamingModel.findOneAndUpdate(
-              { _id: element._id },
-              { $set: { isDeleted: true } }
-            );
-            console.log('removed and marked simulcast data as deleted',markAsDelete);
-            
-            const updateLiveStreamingModel = await liveStreamModel.findOneAndUpdate(
-              { streamKey: liveStreamId },
-              { $pull: { socialMediaIds: element._id } }
-            );
-            console.log('removed and marked updateLiveStreamingModel as deleted',updateLiveStreamingModel);
-            
-          }
-          liveStreamingDataWithSimulcast.isDeleted = true;
-          const updatedDelete = await liveStreamingDataWithSimulcast.save()
-          console.log(updatedDelete);
-          return { status: true, msg: 'Deleted Live Stream Successfully', data:updatedDelete  };
-        }
+        console.log('Live Streaming cleared and stopped');
+        liveStreamingDataWithSimulcast.isDeleted = true;
+        const updatedDelete = await liveStreamingDataWithSimulcast.save();
+        console.log(updatedDelete);
+        return { status: true, msg: 'Deleted Live Stream Successfully', data: updatedDelete };
+      } else {
+        console.log('No live streaming data found');
+        return { status: false, msg: 'No live streaming data found' };
       }
     } catch (error) {
       console.error('Error:', error);
@@ -345,7 +412,7 @@ module.exports = {
           Authorization: process.env.ANT_MEDIA_AUTH,
         },
       });
-      console.log(removeSimulcast.data)
+      console.log('removed simulcast data',removeSimulcast.data)
      if(removeSimulcast.data.success){
       const deleteSimulcast = await socialMediaStreamingModel.findOneAndUpdate({url:socialMediaUrl}, {$set:{isDeleted:true}}, {new:true})
       const deleteLiveStreamEntry = await liveStreamModel.findOneAndUpdate({streamKey:liveStreamId}, { $pull: { socialMediaIds: deleteSimulcast._id } })

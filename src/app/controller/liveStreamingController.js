@@ -123,5 +123,27 @@ module.exports = {
     }catch(error){
       return res.json({ success: false, msg: error.message });
     }
-  }
+  },
+  pauseLiveStream: async function (req, res){
+    try{
+      const result = await liveStreamingService.pauseLiveStreaming(req);
+      if (result.status) {
+        return res.json({ success: true, data: result });
+      } else return res.json({ success: false, msg: result.msg });
+
+    }catch(error){
+      return res.json({ success: false, msg: error.message });
+    }
+  },
+  playLiveStream: async function (req, res){
+    try{
+      const result = await liveStreamingService.playLiveStreaming(req);
+      if (result.status) {
+        return res.json({ success: true, data: result });
+      } else return res.json({ success: false, msg: result.msg });
+
+    }catch(error){
+      return res.json({ success: false, msg: error.message });
+    }
+  },
 };
