@@ -2,7 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const passport= require ('passport');
 const session = require('express-session');
-const port = 5000;
+const port = 5001;
 const cors = require('cors');
 const dbConfig = require('./dbConfig');
 require('dotenv').config();
@@ -27,6 +27,7 @@ app.use("/live-stream",require("./routes/liveStreamingRoutes"));
 app.use("/youtube",require("./routes/youtubeRoutes"));
 app.use("/razorpay",require("./routes/razorpayroutes"));
 app.use("/twitch",require("./routes/twitchRoutes"));
+app.use("/team", require("./routes/teamRoute"))
 dbConfig.dbConnect();
 
 

@@ -5,6 +5,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const Joi = require('joi');
+const Team = require("../models/teams");
 const SALT_ROUNDS = 10;
 
 module.exports = {
@@ -148,8 +149,12 @@ module.exports = {
           { email: email },
           'name userType phoneNumber email'
         );
+        const myCreatedTeams = await Team.find({
+          createdBy: userData._id
+        }).populate('members', 'email');
+        const myMemberShipTeams  = await Team.find({members:{$in:[userData._id]}});
         if (userData) {
-          return res.status(200).json({ status: true, data: userData });
+          return res.status(200).json({ status: true, data: userData, myTeams : myCreatedTeams, myMembership:myMemberShipTeams  });
         } else {
           return res.status(404).json({
             status: false,
