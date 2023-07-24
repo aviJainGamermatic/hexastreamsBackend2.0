@@ -8,7 +8,8 @@ router.post('/register', userController.register);
 router.post('/verify', userController.verify);
 router.post('/login', userController.login);
 router.get("/getProfileData", verify,userController.getProfileData);
-router.post("/update-profile", verify, userController.Update)
+router.post("/update-profile", verify, userController.Update);
+router.get("/get-users", userController.getAllUsers)
 
 
 

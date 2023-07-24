@@ -200,5 +200,26 @@ module.exports = {
         });
       }
     },
+    getAllUser: async function(req, res) {
+      try {
+        let query = {};
+    
+        if (req.query.email) {
+          query.email = { $regex: req.query.email, $options: "i" };
+        }
+    
+        const allUsers = await userModel.find(query, "name email");
+        return res.status(200).json({
+          status: true,
+          msg: "Users fetched successfully.",
+          data: allUsers,
+        });
+      } catch (error) {
+        return res.status(500).json({
+          status: false,
+          msg: error.message,
+        });
+      }
+    }
   
 };

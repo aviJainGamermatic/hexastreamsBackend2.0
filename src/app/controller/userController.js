@@ -57,5 +57,13 @@ module.exports = {
     } catch (error) {
       return res.json({success: false, data: error});
     }
+  },
+  getAllUsers: async function(req, res){
+    try {
+      const getProfileData = await userService.getAllUser(req, res)
+      return getProfileData
+    } catch (error) {
+      return res.json({success: false, data: error});
+    }
   }
 };
