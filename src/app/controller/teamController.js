@@ -60,6 +60,42 @@ module.exports = {
           return res.json({success: false, msg: error});
         }
       },
+      sendInvitationLink: async function(req, res){
+        try {
+          const data = await teamService.sendInvitationLink(req)
+          if(data.status){
+            return res.json({success: true, data: data});
+          }
+          return res.json({success:false, msg:data.msg})
+       
+        } catch (error) {
+          return res.json({success: false, msg: error});
+        }
+      },
+      joinTheTeam: async function(req,res){
+        try {
+          const data = await teamService.joinTheTeam(req)
+          if(data.status){
+            return res.json({success: true, data: data});
+          }
+          return res.json({success:false, msg:data.msg})
+       
+        } catch (error) {
+          return res.json({success: false, msg: error});
+        }
+      },
+      userDetailsOfTeams : async function (req,res){
+        try {
+          const data = await teamService.userDetailsOfTeams(req)
+          if(data.status){
+            return res.json({success: true, data: data});
+          }
+          return res.json({success:false, msg:data.msg})
+       
+        } catch (error) {
+          return res.json({success: false, msg: error});
+        }
+      }
       
 
 }

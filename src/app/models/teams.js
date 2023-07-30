@@ -21,9 +21,13 @@ const teamSchema = new mongoose.Schema({
   members: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User' ,
-    default:    []
+    default:[]
   }],
-
+  joinedUsers:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User' ,
+    default:[]
+  }],
   deletedAt: {
     type: Date
   },
