@@ -6,6 +6,7 @@ const nodemailer = require('nodemailer');
 const { generateEmailContent } = require('../utils/helper');
 const Team = require('../models/teams');
 const { ObjectId } = require('mongodb');
+const liveStreamModel = require('../models/liveStreamModel');
 
 const transporter = nodemailer.createTransport({
     host: process.env.SES_SMTP_ENDPOINT, // SES SMTP endpoint
@@ -39,17 +40,13 @@ module.exports = {
     createTeam : async function(req){
         try {
             let bodyData = req.body;
+         let createdBy  = req.user.userId;
             if(!bodyData.name){
                 return {status: false, code :400, msg:'Name is required for creating a team'}
             }
             if(!bodyData.createdBy){
                 return {status: false, code :400, msg:'Manager is required for creating a team' }
             }
-            if(bodyData.members){
-                // check for unique ids in members
-                 
-            }
-
 
             // create team
             bodyData.createdBy  = req.user.userId;
@@ -110,27 +107,94 @@ module.exports = {
             return {status: false, code :500, msg: error.message}
         }
     },
-    getTeamDetailsById : async function (req){
-        try {
-            const teamId = req.query.teamId;
-            if (!teamId){
-                return{status:false, code :400, msg: 'team Id required '}
-            }
-            const teamExists = await teamModel.exists({_id:teamId, isDeleted:false});
-            if(teamExists == null){
-                return {status:false, code :400, msg: 'team not found'}
-            }
-            const teamDetails = await Team.findOne({_id:teamId ,isDeleted:false}).populate('createdBy joinedUsers members', 'email').lean();
-            if(teamDetails){
-                return {status: true, code:200, data:teamDetails}
-            }
-            return {status: false, code:400, msg: "Unable to fetch team"}
+    // getTeamDetailsById : async function (req){
+    //     try {
+    //         const teamId = req.query.teamId;
+    //         if (!teamId){
+    //             return{status:false, code :400, msg: 'team Id required '}
+    //         }
+    //         const teamExists = await teamModel.exists({_id:teamId, isDeleted:false});
+    //         if(teamExists == null){
+    //             return {status:false, code :400, msg: 'team not found'}
+    //         }
+    //         const teamDetails = await Team.findOne({_id:teamId ,isDeleted:false}).populate('createdBy joinedUsers members', 'email').lean();
+    //         if(teamDetails){
+    //           let joinedMembders = teamDetails.joinedUsers;
             
-        } catch (error) {
-            console.log('error', error);
-            return {status: false, code:500, msg: error.message}
-        }
-    },
+    //           for (let i = 0; i < joinedMembders.length; i++) {
+    //             let element = joinedMembders[i];
+    //             const userLiveStreams = await liveStreamModel.find({
+    //               createdBy : ObjectId(element._id),
+    //               status: {$in:["playing", "online"]}
+    //             })
+                
+    //             element = {...element , status:userLiveStreams[0].status}
+    //             joinedMembders[i] = element
+               
+    //           }
+             
+    //             return {status: true, code:200, data:teamDetails}
+    //         }
+    //         return {status: false, code:400, msg: "Unable to fetch team"}
+            
+    //     } catch (error) {
+    //         console.log('error', error);
+    //         return {status: false, code:500, msg: error.message}
+    //     }
+    // }
+    getTeamDetailsById: async function (req) {
+      try {
+          const teamId = req.query.teamId;
+          if (!teamId) {
+              return { status: false, code: 400, msg: 'team Id required' };
+          }
+  
+          if (!mongoose.isValidObjectId(teamId)) {
+              return { status: false, code: 400, msg: 'Invalid team Id' };
+          }
+  
+          const teamExists = await teamModel.exists({ _id: teamId, isDeleted: false });
+          if (!teamExists) {
+              return { status: false, code: 400, msg: 'Team not found' };
+          }
+  
+          const teamDetails = await Team.findOne({ _id: teamId, isDeleted: false })
+              .populate('createdBy joinedUsers members', 'email')
+              .lean();
+  
+          if (teamDetails) {
+              const joinedMembers = teamDetails.joinedUsers;
+  
+              for (let i = 0; i < joinedMembers.length; i++) {
+                  let element = joinedMembers[i];
+                  try {
+                      const userLiveStreams = await liveStreamModel.find({
+                          createdBy: ObjectId(element._id),
+                          status: { $in: ["playing", "online"] }
+                      }).lean();
+  
+                      if (userLiveStreams.length > 0) {
+                          element = { ...element, status: userLiveStreams[0].status };
+                      } else {
+                          element = { ...element, status: "offline" };
+                      }
+                  } catch (error) {
+                      console.error('Error fetching live streams:', error);
+                      // Continue to the next member even if an error occurs
+                  }
+                  joinedMembers[i] = element;
+              }
+  
+              return { status: true, code: 200, data: teamDetails };
+          }
+  
+          return { status: false, code: 400, msg: "Unable to fetch team" };
+  
+      } catch (error) {
+          console.error('An error occurred:', error);
+          return { status: false, code: 500, msg: "Internal server error" };
+      }
+  },
     deleteTeam : async function (req){
         try {
             const teamId = req.query.teamId;
@@ -235,7 +299,7 @@ module.exports = {
                 .select('name joinedUsers createdBy')
                 .populate('joinedUsers', 'name email') // Assuming 'name' is a field in the 'User' model
                 .populate('createdBy', 'name email'); // Assuming 'name' is a field in the 'User' model
-          
+
               // Find the teams where the user is joined and populate the 'joinedUsers' and 'createdBy' fields
               const teamsJoinedByUser = await Team.find({ joinedUsers: ObjectId(userId) })
                 .select('name joinedUsers createdBy')
@@ -247,7 +311,7 @@ module.exports = {
                 joinedUsers: team.joinedUsers,
                 createdBy: team.createdBy,
               }));
-          
+                       
               const teamsJoinedByUserFormatted = teamsJoinedByUser.map((team) => ({
                 name: team.name,
                 joinedUsers: team.joinedUsers.filter((user) => user.toString() !== userId.toString()),
