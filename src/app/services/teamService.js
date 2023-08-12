@@ -171,7 +171,7 @@ module.exports = {
                       const userLiveStreams = await liveStreamModel.find({
                           createdBy: ObjectId(element._id),
                           status: { $in: ["playing", "online"] }
-                      }).lean();
+                      }).sort({createdAt:-1}).lean();
   
                       if (userLiveStreams.length > 0) {
                           element = { ...element, status: userLiveStreams[0].status };
