@@ -170,7 +170,8 @@ module.exports = {
                   try {
                       const userLiveStreams = await liveStreamModel.find({
                           createdBy: ObjectId(element._id),
-                          status: { $in: ["playing", "online"] }
+                          status: { $in: ["playing", "online"] },
+                          teamId: ObjectId(teamId)
                       }).sort({createdAt:-1}).lean();
   
                       if (userLiveStreams.length > 0) {
@@ -295,11 +296,11 @@ module.exports = {
           userDetailsOfTeams : async  (req) =>{
             try {
                 const userId = req.user.userId
-                const teamsCreatedByUser = await Team.find({ createdBy: ObjectId(userId) })
+              const teamsCreatedByUser = await Team.find({ createdBy: ObjectId(userId) })
                 .select('name joinedUsers createdBy')
                 .populate('joinedUsers', 'name email') // Assuming 'name' is a field in the 'User' model
                 .populate('createdBy', 'name email'); // Assuming 'name' is a field in the 'User' model
-
+          
               // Find the teams where the user is joined and populate the 'joinedUsers' and 'createdBy' fields
               const teamsJoinedByUser = await Team.find({ joinedUsers: ObjectId(userId) })
                 .select('name joinedUsers createdBy')
@@ -311,19 +312,19 @@ module.exports = {
                 joinedUsers: team.joinedUsers,
                 createdBy: team.createdBy,
               }));
-                       
+              
               const teamsJoinedByUserFormatted = teamsJoinedByUser.map((team) => ({
                 name: team.name,
                 joinedUsers: team.joinedUsers.filter((user) => user.toString() !== userId.toString()),
                 createdBy: team.createdBy,
               }));
-            
+              
                 return { status: true, data: { teamsCreatedByUser: teamsCreatedByUserFormatted, teamsJoinedByUser: teamsJoinedByUserFormatted } };
-              } catch (error) {
-                console.error('Error fetching user teams information:', error);
-                return { status: false, msg: 'An error occurred while fetching user teams information.' };
-              }
+            } catch (error) {
+              console.error('Error fetching user teams information:', error);
+              return { status: false, msg: 'An error occurred while fetching user teams information.' };
             }
+          }
+            
     
-
 }

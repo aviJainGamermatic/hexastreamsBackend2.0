@@ -30,6 +30,14 @@ const liveStreamSchema = new mongoose.Schema({
     isDeleted:{
         type:Boolean,
         default:false
+    },
+    streamType: {
+        type: String,
+        enum : ['team', 'individual']
+    },
+    teamId: {
+        type: ObjectId,
+        ref: "Team"
     }
 },{timestamps:true})
 module.exports = mongoose.model('liveStream', liveStreamSchema);

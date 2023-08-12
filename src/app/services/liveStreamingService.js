@@ -69,6 +69,12 @@ module.exports = {
   },
   createLiveStream: async function (req) {
     console.log('inside create live stream', req.body);
+    const streamType = req.body.streamType ? req.body.streamType  : "individual";
+    if(streamType == "team"){
+      if(req.body.teamId == "" || req.body.teamId == undefined || req.body.teamId == null  ){
+        return { status: false, code: 400, msg: `Select a team to stream the video!` }; 
+      }
+    }
     try {
       console.log('ccc xxxx ccxx');
       let config = {
@@ -89,6 +95,8 @@ module.exports = {
           muxStreamingId: "",
           startTime: "",
           playbackId: "",
+          streamType: streamType,
+          teamId: req.body.teamId ? ObjectId(req.body.teamId) : null
         });
 
         return { status: true, data: saveMuxData, antMediaData:muxData.data  };
