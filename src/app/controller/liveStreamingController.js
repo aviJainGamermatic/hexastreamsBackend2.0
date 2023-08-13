@@ -68,7 +68,7 @@ module.exports = {
   },
   stopLiveStreaming: async function (req, res) {
     try {
-      const result = await liveStreamingService.stopLiveStreaming(req);
+      const result = await liveStreamingService.stopAndDeleteLiveStreaming(req);
       if (result.status) return res.json({ success: true, data: result });
       else return res.json({ success: false, msg: result.msg });
     } catch (error) {
