@@ -374,7 +374,10 @@ module.exports = {
   
           const updateLiveStreamingModel = await liveStreamModel.findOneAndUpdate(
             { streamKey: liveStreamId },
-            { $pull: { socialMediaIds: element._id }, $set:{status: 'offline'} }
+            {
+              $set: { status: 'offline', },
+              $pull: { socialMediaIds: element._id }
+            }
           );
           console.log('Removed and marked updateLiveStreamingModel as deleted', updateLiveStreamingModel);
         }
@@ -393,9 +396,17 @@ module.exports = {
         const streamData = await axios(config);
         console.log('Live Streaming cleared and stopped');
         liveStreamingDataWithSimulcast.isDeleted = true;
-        const updatedDelete = await liveStreamingDataWithSimulcast.save();
+        const updateLiveStreamingModel = await liveStreamModel.findOneAndUpdate(
+          { streamKey: liveStreamId },
+          {
+            $set: { isDeleted: true },
+          },{
+            new: true
+          }
+        );
+     
         console.log(updatedDelete);
-        return { status: true, msg: 'Deleted Live Stream Successfully', data: updatedDelete };
+        return { status: true, msg: 'Deleted Live Stream Successfully', data: updateLiveStreamingModel };
       } else {
         console.log('No live streaming data found');
         return { status: false, msg: 'No live streaming data found' };
