@@ -68,7 +68,6 @@ module.exports = {
     }
   },
   createLiveStream: async function (req) {
-    console.log('inside create live stream', req.body);
     const streamType = req.body.streamType ? req.body.streamType  : "individual";
     if(streamType == "team"){
       if(req.body.teamId == "" || req.body.teamId == undefined || req.body.teamId == null  ){
@@ -84,7 +83,6 @@ module.exports = {
           "Content-Type": "application/json",
           Authorization: `${process.env.ANT_MEDIA_AUTH}`
         },
-        data: req.body,
       };
       const muxData = await axios(config);
       if (muxData.status == 200) {
