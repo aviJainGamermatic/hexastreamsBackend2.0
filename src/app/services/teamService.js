@@ -297,23 +297,25 @@ module.exports = {
             try {
                 const userId = req.user.userId
               const teamsCreatedByUser = await Team.find({ createdBy: ObjectId(userId) })
-                .select('name joinedUsers createdBy')
+                .select('name joinedUsers createdBy _id')
                 .populate('joinedUsers', 'name email') // Assuming 'name' is a field in the 'User' model
                 .populate('createdBy', 'name email'); // Assuming 'name' is a field in the 'User' model
           
               // Find the teams where the user is joined and populate the 'joinedUsers' and 'createdBy' fields
               const teamsJoinedByUser = await Team.find({ joinedUsers: ObjectId(userId) })
-                .select('name joinedUsers createdBy')
+                .select('name joinedUsers createdBy _id')
                 .populate('joinedUsers', 'name email') // Assuming 'name' is a field in the 'User' model
                 .populate('createdBy', 'name email'); // Assuming 'username' is a field in the 'User' model
           
               const teamsCreatedByUserFormatted = teamsCreatedByUser.map((team) => ({
+                teamId: team._id,
                 name: team.name,
                 joinedUsers: team.joinedUsers,
                 createdBy: team.createdBy,
               }));
               
               const teamsJoinedByUserFormatted = teamsJoinedByUser.map((team) => ({
+                teamId: team._id,
                 name: team.name,
                 joinedUsers: team.joinedUsers.filter((user) => user.toString() !== userId.toString()),
                 createdBy: team.createdBy,
