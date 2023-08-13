@@ -374,7 +374,7 @@ module.exports = {
   
           const updateLiveStreamingModel = await liveStreamModel.findOneAndUpdate(
             { streamKey: liveStreamId },
-            { $pull: { socialMediaIds: element._id } }
+            { $pull: { socialMediaIds: element._id }, $set:{status: 'offline'} }
           );
           console.log('Removed and marked updateLiveStreamingModel as deleted', updateLiveStreamingModel);
         }
