@@ -170,7 +170,7 @@ module.exports = {
                   try {
                       const userLiveStreams = await liveStreamModel.find({
                           createdBy: ObjectId(element._id),
-                          status: { $in: ["playing", "online"] },
+                          status: { $in: ["playing", "online", "created"] },
                           teamId: ObjectId(teamId)
                       }).sort({createdAt:-1}).lean();
   
