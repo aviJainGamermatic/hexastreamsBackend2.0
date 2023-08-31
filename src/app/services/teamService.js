@@ -232,7 +232,7 @@ module.exports = {
                       subject: `You are invited to join a team!`,
                       html: generateEmailContent(user.name ?user.name  : "User", `You are invited to join ${fetchTeamDetails.name ?fetchTeamDetails.name: fetchTeamDetails.email }`, `🎉 Your talents and enthusiasm make you the perfect fit for our crew. 🌟
 
-                      Click the link below to embark on a thrilling journey filled with endless opportunities`, `Click to Join`, `${process.env.HEXASTREAM_BASEURL}/verification/link/${fetchTeamDetails._id}/${user._id}`),
+                      Click the link below to embark on a thrilling journey filled with endless opportunities`, `Click to Join`, `${process.env.HEXASTREAM_BASEURL}verification/link/${fetchTeamDetails._id}/${user._id}`),
                     });
             
                   }
