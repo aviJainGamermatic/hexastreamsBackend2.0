@@ -55,9 +55,36 @@ module.exports = {
             // bodyData.secretCodeToJoin = secretCode;
             const newTeamCreated = await teamModel.create(bodyData)
             if(newTeamCreated){
+              const teamId = newTeamCreated._id;
+              const usersToSendInvites = newTeamCreated.members;
+              const fetchTeamDetails = await Team.findOne({_id:ObjectId(teamId)}).populate('members createdBy', "email name");
+              if(fetchTeamDetails){
+                  const invitations =fetchTeamDetails.members  
+                  const managerName = fetchTeamDetails.createdBy.name;
+                  for(let user of invitations) {
+                      // Generate unique invite link 
+                      // Send invite email
+                      let info = await transporter.sendMail({
+                        from: 'info@gamermatic.in',
+                        to: user.email,
+                        subject: `You are invited to join a team!`,
+                        html: generateEmailContent(user.name ?user.name  : "User", `You are invited to join ${fetchTeamDetails.name ?fetchTeamDetails.name: fetchTeamDetails.email }`, `🎉 Your talents and enthusiasm make you the perfect fit for our crew. 🌟
+  
+                        Click the link below to embark on a thrilling journey filled with endless opportunities`, `Click to Join`, `${process.env.HEXASTREAM_BASEURL}verification/link/${fetchTeamDetails._id}/${user._id}`),
+                      });
+                      console.log('info info', info);
+              
+                    }
+              }
+              if(!teamId) {
+                return {status: false, code: 400, msg: 'Team id required'};  
+              }
+        
+              if(!usersToSendInvites) {
+                return {status: false, code: 400, msg: 'Members required'};
+              }
                 return {status: true, code :200, data:newTeamCreated }
             }
-         
         } catch (error) {
             return {status:false, msg: error.message}
         }
