@@ -1,4 +1,5 @@
 const express = require('express');
+const router = new express.Router();
 const liveStreamingController = require("../controller/liveStreamingController");
 const verify = require("../middleware/auth")
 
