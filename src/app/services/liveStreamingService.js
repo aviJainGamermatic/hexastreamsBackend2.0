@@ -104,6 +104,50 @@ module.exports = {
       return { status: false, code: 500, msg: `${error.message}` };
     }
   },
+  createNewStampRequest: async function (req) {
+    const req_body = {
+      "id":req.body.id,
+      "start":req.body.start,
+      "duration":req.body.duration,
+      "image":req.body.image,
+      "position":{
+        "x":req.body.position.x,
+        "y":req.body.position.y,
+        "anchor":req.body.position.anchor
+      },
+      "transitionIn":{
+        "type":req.body.transitionIn.type,
+        "duration":req.body.transitionIn.duration,
+      },
+      "transitionOut":{
+        "type":req.body.transitionOut.type,
+        "duration":req.body.transitionOut.duration,
+      }
+    }
+    try {
+      const base_url = process.env.ANT_MEDIA_URL.replace("v2/", "")
+      console.log('ccc xxxx ccxx');
+      let config = {
+        method: "POST",
+        url: `${base_url}stamp/instructions`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${process.env.ANT_MEDIA_AUTH}`
+        },
+        data:req_body
+      };
+      const muxData = await axios(config);
+      if (muxData.status == 200) {
+        return { status: true };
+      }
+      else{
+        return { status: false };
+      }
+    } catch (error) {
+      console.log(error.response.data)
+      return { status: false, code: 500, msg: `${error.message}` };
+    }
+  },
   restreamToYoutube : async function (req)  {
     try {
       const { liveStreamId, youtube } = req.body;
