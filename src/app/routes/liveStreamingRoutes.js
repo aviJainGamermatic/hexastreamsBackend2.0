@@ -1,5 +1,4 @@
 const express = require('express');
-const router = new express.Router();
 const liveStreamingController = require("../controller/liveStreamingController");
 const verify = require("../middleware/auth")
 
@@ -18,4 +17,5 @@ router.get("/delete-All-LiveStream", verify, liveStreamingController.deleteAllLi
 router.post("/delete-social-media", verify, liveStreamingController.deleteSocialMedaStream);
 router.post("/pause-live-stream", verify, liveStreamingController.pauseLiveStream);
 router.post("/play-live-stream", verify, liveStreamingController.playLiveStream);
+router.post("/create-stamp-request", verify, liveStreamingController.createNewStampRequest);
 module.exports=router;

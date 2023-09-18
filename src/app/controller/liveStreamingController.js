@@ -39,6 +39,15 @@ module.exports = {
       return res.json({ success: false, msg: error.message });
     }
   },
+  createNewStampRequest: async function (req, res) {
+    try {
+      const result = await liveStreamingService.createNewStampRequest(req);
+      if (result.status) return res.json({ success: true, data: result });
+      else return res.json({ success: false, msg: result.msg });
+    } catch (error) {
+      return res.json({ success: false, msg: error.message });
+    }
+  },
   liveStreamInYoutube: async function (req, res) {
     try {
       const result = await liveStreamingService.restreamToYoutube(req);
